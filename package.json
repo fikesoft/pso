@@ -19,6 +19,8 @@
     "db:migrate": "node --env-file=.env scripts/migrate.mjs",
     "bootstrap": "node --env-file=.env --import tsx apps/api/src/bootstrap.ts",
     "seed": "node --env-file=.env --import tsx apps/api/src/seed.ts",
+    "seed:showcase": "node --env-file=.env --import tsx scripts/showcase-seed/seed.ts",
+    "seed:showcase:production": "node --env-file=.local/vercel-db.env --env-file=.local/vercel-production.env --import tsx scripts/showcase-seed/seed.ts --production",
     "test": "vitest run",
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:e2e": "playwright test",

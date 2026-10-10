@@ -3,17 +3,19 @@ import type { TenantTransaction } from '@pos/db';
 import { requestHash } from '../../shared/lib/idempotency';
 import { DEMO_INGREDIENTS } from '../config/demo-ingredients.constants';
 import { DEMO_MENU } from '../config/demo-menu.constants';
+import type { DemoMenuProduct } from './demo-catalog.types';
 
 /** Add missing fixture records only; keep operator edits and immutable recipe history. */
 export async function seedDemoCatalog(
   tx: TenantTransaction,
   organizationId: string,
   userId: string,
+  menu: readonly DemoMenuProduct[] = DEMO_MENU,
 ) {
   await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${organizationId},0))`;
   const locations = await tx.location.findMany({ where: { organizationId, status: 'ACTIVE' } });
   let created = 0;
-  for (const entry of DEMO_MENU) {
+  for (const entry of menu) {
     const category = await tx.category.upsert({
       where: { organizationId_name: { organizationId, name: entry.category } },
       update: {},

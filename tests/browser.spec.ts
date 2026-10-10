@@ -51,6 +51,7 @@ import './browser/order-repeat.spec';
 import './browser/order-repeat-operator.spec';
 import './browser/order-repeat-recovery.spec';
 import './browser/demo-seed.spec';
+import './browser/showcase-seed.spec';
 import './browser/active-orders.spec';
 import './browser/active-orders-recovery.spec';
 import './browser/active-orders-access.spec';
