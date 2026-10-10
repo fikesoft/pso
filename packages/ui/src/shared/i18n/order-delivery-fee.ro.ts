@@ -1,0 +1,21 @@
+export const orderDeliveryFeeMessages = {
+  title: 'Tarif de livrare al comenzii',
+  hint: 'Introduceți coordonatele verificate ale adresei. Tariful se calculează din produsele salvate. Nu se contactează servicii de hărți.',
+  preview: 'Calculează tariful',
+  confirmed: 'Tarif confirmat',
+  pending: 'Tarif neconfirmat',
+  confirm: 'Confirm destinația și totalul cu livrare',
+  apply: 'Aplică tariful',
+  resolve: 'Verifică rezultatul tarifului',
+  retry: 'Reîncearcă aceeași confirmare',
+  unknown:
+    'Rezultatul confirmării este necunoscut. Verificați rezultatul înainte de altă operațiune.',
+  retired: 'Tentativa nu a fost aplicată și a fost retrasă. Puteți recalcula.',
+  saved: 'Tariful a fost aplicat.',
+  subtotal: 'Subtotal produse',
+  refresh: 'Reîncarcă înainte de recalculare',
+  NOT_CONFIGURED: 'Locația nu are zone configurate; se păstrează fluxul existent fără taxă.',
+  OUTSIDE_ZONE: 'Destinația nu este acoperită de o zonă activă.',
+  CLOSED: 'Zonele acestei destinații sunt închise acum.',
+  MINIMUM_NOT_MET: 'Subtotalul produselor este sub minimul zonei.',
+};

@@ -1,0 +1,63 @@
+.packing-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 16px;
+  margin-top: 20px;
+  align-items: start;
+}
+.packing-card {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel);
+  overflow-wrap: anywhere;
+}
+.packing-card header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.packing-card h2 {
+  font-size: 20px;
+  font-weight: 700;
+}
+.packing-checklist {
+  list-style: none;
+  padding: 0;
+  margin: 14px 0;
+}
+.packing-checklist label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 44px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+.packing-checklist input[type='checkbox'] {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  margin-top: 2px;
+}
+.packing-item-detail {
+  display: block;
+  margin-top: 4px;
+  font-size: 14px;
+}
+.packing-filter {
+  display: grid;
+  gap: 6px;
+  max-width: 340px;
+  margin-bottom: 16px;
+}
+.packing-filter select {
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}

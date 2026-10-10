@@ -1,0 +1,22 @@
+.report {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: 1rem;
+  margin: 0;
+}
+.metrics div {
+  min-width: 0;
+}
+.metrics dt {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+.metrics dd {
+  margin: 0.25rem 0 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}

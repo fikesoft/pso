@@ -1,0 +1,2 @@
+export const CATALOG_SEARCH_DEBOUNCE_MS = 250;
+export const CATALOG_SEARCH_MAX_LENGTH = 150;

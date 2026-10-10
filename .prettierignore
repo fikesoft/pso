@@ -1,0 +1,13 @@
+node_modules
+.tools
+.local
+.next
+**/.next
+**/next-env.d.ts
+packages/db/generated
+packages/db/prisma/migrations
+PROMPT_CODEX_POS_MVP.md
+pnpm-lock.yaml
+apps/*/AGENTS.md
+apps/*/CLAUDE.md
+test-results

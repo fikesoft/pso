@@ -1,0 +1,167 @@
+.auth-page {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: #fff;
+}
+.auth-story {
+  background: #eaf0ec;
+  padding: 45px 8%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+.auth-story:after {
+  content: '';
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  border: 1px solid #dce7df;
+  border-radius: 50%;
+  right: -200px;
+  bottom: -250px;
+  box-shadow:
+    0 0 0 60px #e2eae480,
+    0 0 0 120px #e2eae430;
+  pointer-events: none;
+}
+.auth-story-content {
+  margin: auto 0;
+  padding: 60px 0;
+  max-width: 510px;
+  position: relative;
+  z-index: 1;
+}
+.auth-story-content h1 {
+  font-size: clamp(34px, 3.25vw, 52px);
+  letter-spacing: -1.8px;
+  line-height: 1.15;
+  color: #254536;
+  margin: 24px 0;
+}
+.auth-story-content p {
+  max-width: 390px;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #657a6e;
+}
+.auth-principles {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  margin-top: 40px;
+  color: #486553;
+  font-size: 13px;
+}
+.auth-principles > div {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+.auth-foot {
+  font-size: 11px;
+  color: #7a8b80;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 1;
+}
+.status-dot {
+  height: 6px;
+  width: 6px;
+  background: #449271;
+  border-radius: 50%;
+  display: inline-block;
+}
+.auth-panel {
+  display: flex;
+  flex-direction: column;
+  padding: 50px 12%;
+  min-width: 0;
+}
+.auth-card {
+  max-width: 390px;
+  width: 100%;
+  margin: auto;
+}
+.auth-icon {
+  background: var(--soft);
+  color: var(--accent);
+  border: 1px solid #dce9e0;
+  width: 54px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  margin-bottom: 25px;
+}
+.auth-card h2 {
+  font-size: 29px;
+  letter-spacing: -0.8px;
+  margin-bottom: 12px;
+}
+.auth-card > .muted {
+  font-size: 14px;
+  line-height: 1.7;
+  margin-bottom: 30px;
+}
+.auth-card .form-stack {
+  gap: 20px;
+}
+.auth-help {
+  display: flex;
+  gap: 7px;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #89919b;
+  margin-top: 25px;
+  align-items: flex-start;
+}
+.auth-panel footer {
+  display: flex;
+  justify-content: space-between;
+  color: #929ba5;
+  font-size: 10px;
+  margin-top: 40px;
+  gap: 12px;
+}
+.auth-loading {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+}
+.enrollment {
+  background: #f3f6f4;
+  border: 1px solid #dce9e0;
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 12px;
+}
+.enrollment code {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+.enrollment p {
+  margin: 0;
+}
+.enrollment a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.auth-method-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.auth-method-switch .button {
+  font-size: 12px;
+  padding: 10px 8px;
+}

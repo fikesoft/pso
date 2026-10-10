@@ -1,0 +1,18 @@
+# Bind exclusively to WireGuard PRIVATE_VPN_IP; do not include in public nginx config.
+server {
+  listen PRIVATE_VPN_IP:443 ssl;
+  server_name PRIVATE_PLATFORM_HOST;
+  ssl_certificate /run/private/platform.crt;
+  ssl_certificate_key /run/private/platform.key;
+  ssl_client_certificate /run/private/client-ca.crt;
+  ssl_verify_client on;
+  ssl_crl /run/private/revoked.crl;
+  allow OWNER_WIREGUARD_IP/32;
+  deny all;
+  location / {
+    proxy_pass http://platform-web:3001;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Forwarded-Proto https;
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "name": "@pos/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./deployment": "./src/deployment.ts",
+    "./payments": "./src/payments/payments.schema.ts",
+    "./orders": "./src/orders/config/order.constants.ts",
+    ".": "./src/index.ts",
+    "./pin": "./src/shared/config/pin.constants.ts",
+    "./inventory": "./src/inventory/config/inventory.constants.ts",
+    "./modifiers": "./src/shared/config/modifier.constants.ts",
+    "./menu-schedules": "./src/menu-schedules/config/menu-schedules.constants.ts",
+    "./realtime": "./src/realtime/transport.ts",
+    "./website-delivery": "./src/website-delivery/config/website.constants.ts",
+    "./product-information": "./src/catalog/config/product-information.constants.ts",
+    "./upsell": "./src/upsell/config/upsell.constants.ts",
+    "./delivery": "./src/delivery/index.ts",
+    "./customers": "./src/customers/config/customer.constants.ts",
+    "./customer-addresses": "./src/customer-addresses/config/customer-address.constants.ts",
+    "./order-repeat": "./src/orders/config/order-repeat.constants.ts",
+    "./cash-registers": "./src/cash-registers/index.ts",
+    "./cash-shifts": "./src/cash-shifts/index.ts",
+    "./cash-movements": "./src/cash-movements/index.ts",
+    "./cash-discrepancies": "./src/cash-discrepancies/index.ts",
+    "./order-responsibilities": "./src/order-responsibilities/index.ts",
+    "./tables": "./src/tables/index.ts",
+    "./bill-splits": "./src/bill-splits/index.ts",
+    "./kitchen-stations": "./src/kitchen-stations/index.ts",
+    "./kitchen-alerts": "./src/kitchen-alerts/index.ts",
+    "./kitchen-courses": "./src/kitchen/course.ts",
+    "./packing": "./src/packing/index.ts",
+    "./customer-management": "./src/customers/customer-management.schema.ts",
+    "./customer-analytics": "./src/customers/customer-analytics.schema.ts",
+    "./customer-history": "./src/customers/customer-history.schema.ts",
+    "./address-management": "./src/customer-addresses/address-management.schema.ts",
+    "./delivery-zones": "./src/delivery-zones/index.ts",
+    "./couriers": "./src/couriers/index.ts",
+    "./courier-work": "./src/courier-work/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run test",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "build": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint src test"
+  },
+  "dependencies": {
+    "@pos/authz": "workspace:*",
+    "zod": "4.5.4"
+  }
+}

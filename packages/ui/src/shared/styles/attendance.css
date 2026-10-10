@@ -1,0 +1,33 @@
+.attendance-controls,
+.attendance-filters {
+  display: flex;
+  gap: 12px;
+  align-items: end;
+  flex-wrap: wrap;
+}
+.attendance-filters .field {
+  flex: 1 1 160px;
+  min-width: 0;
+}
+.attendance-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin: 0;
+}
+.attendance-metrics dt {
+  color: var(--muted);
+  font-size: 12px;
+}
+.attendance-metrics dd {
+  margin: 6px 0 0;
+  font-size: 18px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 480px) {
+  .attendance-controls > button,
+  .attendance-filters > button {
+    width: 100%;
+  }
+}

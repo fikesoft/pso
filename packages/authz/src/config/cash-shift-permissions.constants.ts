@@ -1,0 +1,51 @@
+import type { PermissionDefinition } from '../model/catalog.types.js';
+export const CASH_SHIFT_PERMISSIONS = [
+  {
+    key: 'cash.movements.create',
+    label: 'Introducerea și retragerea numerarului',
+    scopeTypes: ['LOCATION'],
+    delegable: true,
+    privileged: false,
+    supportedLimits: ['maxAmount'],
+  },
+  {
+    key: 'cash.shifts.read',
+    label: 'Vizualizarea turelor proprii',
+    scopeTypes: ['LOCATION'],
+    delegable: true,
+    privileged: false,
+    supportedLimits: [],
+  },
+  {
+    key: 'cash.shifts.open',
+    label: 'Deschiderea turei proprii',
+    scopeTypes: ['LOCATION'],
+    delegable: true,
+    privileged: false,
+    supportedLimits: ['maxAmount'],
+  },
+  {
+    key: 'cash.shifts.close',
+    label: 'Închiderea turei proprii',
+    scopeTypes: ['LOCATION'],
+    delegable: true,
+    privileged: false,
+    supportedLimits: [],
+  },
+  {
+    key: 'cash.shifts.close-others',
+    label: 'Închiderea turelor altor operatori',
+    scopeTypes: ['LOCATION'],
+    delegable: true,
+    privileged: true,
+    supportedLimits: [],
+  },
+  {
+    key: 'cash.reports.read',
+    label: 'Vizualizarea rapoartelor de casă',
+    scopeTypes: ['LOCATION'],
+    delegable: true,
+    privileged: false,
+    supportedLimits: [],
+  },
+] as const satisfies readonly PermissionDefinition[];

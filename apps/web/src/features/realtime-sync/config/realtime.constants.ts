@@ -1,0 +1,2 @@
+export const REALTIME_RETRY_INITIAL_MS = 500;
+export const REALTIME_RETRY_MAX_MS = 10_000;

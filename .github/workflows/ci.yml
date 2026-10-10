@@ -1,0 +1,93 @@
+# Artifact only: this workflow has NOT been dispatched. No deployment or uploads.
+# Manual dispatch is intentional; publishing this repository requires separate authorization.
+name: Fundație POS — verificări sintetice
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  foundation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      DO_NOT_TRACK: '1'
+      PGHOST: 127.0.0.1
+      PGPORT: '55432'
+      PGUSER: pos_ci_owner
+      # Ephemeral CI owner only. Every application role receives a separate random password.
+      PGPASSWORD: ci-ephemeral-owner-not-for-production
+    services:
+      postgres:
+        image: postgres:18.6-alpine
+        env:
+          POSTGRES_USER: pos_ci_owner
+          POSTGRES_PASSWORD: ci-ephemeral-owner-not-for-production
+          POSTGRES_DB: postgres
+        ports:
+          - 127.0.0.1:55432:5432
+        options: >-
+          --health-cmd "pg_isready -U pos_ci_owner -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 15
+    steps:
+      - name: Citește checkout-ul autorizat
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Node LTS fixat
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.20.0
+          package-manager-cache: false
+      - name: pnpm fixat
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: 11.19.0
+          run_install: false
+      - name: Instalează numai versiunile din lockfile
+        run: pnpm install --frozen-lockfile
+      - name: Validează și generează Prisma
+        run: |
+          pnpm db:validate
+          pnpm db:generate
+      - name: Client PostgreSQL și baze sintetice cu roluri RLS
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends postgresql-client
+          node scripts/ci-db.mjs
+      - name: Lint și TypeScript
+        run: |
+          pnpm format:check
+          pnpm lint
+          pnpm typecheck
+      - name: Unități, RLS pe PostgreSQL și HTTP real
+        run: |
+          pnpm test
+          pnpm test:db
+          pnpm test:integration
+          pnpm test:worker
+      - name: Build toate aplicațiile
+        run: pnpm build
+      - name: Browser Chromium local
+        run: pnpm exec playwright install --with-deps chromium
+      - name: E2E pe loopback, fără deploy
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .local
+          node --env-file=.env scripts/dev.mjs > .local/ci-dev.log 2>&1 &
+          server_pid=$!
+          trap 'kill -TERM "$server_pid" 2>/dev/null || true' EXIT
+          node --input-type=module <<'NODE'
+          const urls=['http://127.0.0.1:4000/health','http://127.0.0.1:4001/health','http://127.0.0.1:3000/c/sakura-demo/login','http://127.0.0.1:3001'];
+          const deadline=Date.now()+90000;
+          while(urls.length && Date.now()<deadline){
+            for(let i=urls.length-1;i>=0;i--){
+              try { if((await fetch(urls[i],{signal:AbortSignal.timeout(5000)})).ok)urls.splice(i,1); } catch {}
+            }
+            if(urls.length)await new Promise(resolve=>setTimeout(resolve,1000));
+          }
+          if(urls.length)throw new Error('Aplicațiile locale nu au devenit disponibile în intervalul permis.');
+          NODE
+          pnpm test:e2e
+      # No upload-artifact/cache of .env, DB, screenshots, traces or repository data.

@@ -1,0 +1,34 @@
+import type { Assignment, Override } from './access.types';
+import type { Organization } from './organization.types';
+export type AuthenticationMethod = 'PASSWORD' | 'PIN';
+export type User = {
+  id: string;
+  displayName: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  employeeCode?: string | null;
+  hireDate?: string | null;
+  avatarUrl?: string | null;
+  login: string;
+  authenticationMethod?: AuthenticationMethod;
+  organizationId?: string;
+  isPrimaryAdmin?: boolean;
+  mustChangePassword?: boolean;
+  mfaRequired?: boolean;
+  mfaEnrolled?: boolean;
+  status?: string;
+  version: number;
+  locationIds?: string[];
+  locations?: { locationId?: string; id?: string; name?: string }[];
+  managedByUserId?: string;
+  assignments?: Assignment[];
+  overrides?: Override[];
+};
+export type Session = {
+  user: User | null;
+  organization?: Organization;
+  csrfToken: string;
+  stage?: 'password' | 'enroll' | 'mfa' | 'ready';
+};

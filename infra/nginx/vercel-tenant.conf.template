@@ -1,0 +1,73 @@
+# Șablon pentru profilul operator-configured-proxy din compose.production.yaml.
+# Înlocuiți pos.example.invalid și POS_PROJECT.vercel.app înainte de nginx -t.
+# DNS-ul tenantului indică VPS-ul; aliasul Vercel rămâne upstream, nu domeniu canonic.
+resolver 127.0.0.11 valid=60s;
+
+server {
+    listen 443 ssl default_server;
+    server_name _;
+    ssl_certificate /etc/nginx/certs/fullchain.pem;
+    ssl_certificate_key /etc/nginx/certs/privkey.pem;
+    return 404;
+}
+
+server {
+    listen 443 ssl;
+    server_name pos.example.invalid;
+    ssl_certificate /etc/nginx/certs/fullchain.pem;
+    ssl_certificate_key /etc/nginx/certs/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    client_max_body_size 4m;
+
+    location = /api/tenant/realtime {
+        proxy_pass http://api:4000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host pos.example.invalid;
+        proxy_set_header Origin $http_origin;
+        proxy_set_header X-Forwarded-For "";
+        proxy_set_header X-Forwarded-Host "";
+        proxy_set_header X-Forwarded-Proto "";
+        proxy_read_timeout 90s;
+        proxy_buffering off;
+    }
+
+    location ^~ /api/tenant/ {
+        proxy_pass http://api:4000;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_set_header Host pos.example.invalid;
+        proxy_set_header Origin $http_origin;
+        proxy_set_header X-Forwarded-For "";
+        proxy_set_header X-Forwarded-Host "";
+        proxy_set_header X-Forwarded-Proto "";
+        proxy_connect_timeout 5s;
+        proxy_read_timeout 20s;
+        proxy_cache off;
+        proxy_hide_header Cache-Control;
+        add_header Cache-Control "no-store" always;
+    }
+
+    # Platforma și integrările nu se expun prin acest frontend.
+    location /api { return 404; }
+
+    location / {
+        set $vercel_upstream POS_PROJECT.vercel.app;
+        proxy_pass https://$vercel_upstream;
+        proxy_http_version 1.1;
+        proxy_ssl_server_name on;
+        proxy_ssl_name $vercel_upstream;
+        proxy_ssl_verify on;
+        proxy_ssl_trusted_certificate /etc/ssl/certs/ca-certificates.crt;
+        proxy_set_header Host $vercel_upstream;
+        proxy_set_header Connection "";
+        proxy_set_header Cookie "";
+        proxy_set_header Authorization "";
+        proxy_set_header X-Csrf-Token "";
+        proxy_set_header X-Forwarded-For "";
+        proxy_set_header X-Forwarded-Host "";
+        proxy_set_header X-Forwarded-Proto "";
+        proxy_cache off;
+    }
+}

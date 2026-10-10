@@ -1,0 +1,32 @@
+export const customerAnalyticsMessages = {
+  title: 'Analiza clientului',
+  description:
+    'Comenzi finalizate, fără bonuri DEMO. Încasările și rambursările sunt distincte de valoarea comenzilor.',
+  scope: 'Acoperirea analizei',
+  local: 'Locația selectată',
+  organization: 'Locațiile active autorizate',
+  coverage: 'Locații incluse',
+  coverageHint:
+    'Sunt incluse numai comenzile pe care le poți citi, inclusiv limita valorică. Locațiile inactive sunt excluse.',
+  refresh: 'Recalculează analiza',
+  asOf: 'Calculat la',
+  completedOrders: 'Comenzi finalizate',
+  orderValue: 'Valoarea comenzilor',
+  averageOrderValue: 'Valoarea medie a comenzii',
+  collectedAmount: 'Încasat',
+  refundedAmount: 'Rambursat',
+  totalSpent: 'Cheltuit net',
+  firstOrderAt: 'Prima comandă',
+  lastOrderAt: 'Ultima comandă',
+  ordersLast30Days: 'Comenzi în ultimele 30 de zile',
+  averageDaysBetweenOrders: 'Interval mediu între comenzi (zile)',
+  favoriteProducts: 'Produse preferate după cantitate',
+  favoriteLocation: 'Locația preferată după numărul comenzilor',
+  noHistory: 'Nu există comenzi finalizate eligibile în această acoperire.',
+  unavailable: 'Fără date suficiente',
+  quantity: 'Cantitate',
+  orders: 'comenzi',
+  order: 'comandă',
+  historicalHint:
+    'Preferințele folosesc articolele istorice; rambursările monetare nu rescriu cantitățile produselor.',
+};

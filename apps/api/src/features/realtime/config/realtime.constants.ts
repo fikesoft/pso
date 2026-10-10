@@ -1,0 +1,15 @@
+export const REALTIME_LIMITS = {
+  maxConnections: 500,
+  maxSessionConnections: 8,
+  maxPendingHandshakes: 30,
+  handshakesPerMinute: 300,
+  maxMessageBytes: 1_024,
+  messagesPerMinute: 30,
+  maxBufferedBytes: 64 * 1_024,
+  checkIntervalMs: 10_000,
+  debounceMs: 50,
+  handshakeTimeoutMs: 10_000,
+  orderResyncIntervalMs: 30_000,
+  maxPendingOrderEvents: 200,
+  orderFlushBatch: 20,
+} as const;

@@ -1,0 +1,96 @@
+.inventory-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+.inventory-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.inventory-card,
+.inventory-component {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--line);
+  background: white;
+  border-radius: 12px;
+  overflow-wrap: anywhere;
+}
+.inventory-card h3 {
+  margin: 0;
+}
+.inventory-card .form-footer {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+.inventory-negative {
+  color: #a13632;
+  font-weight: 700;
+}
+.inventory-metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.inventory-component {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+}
+.inventory-component legend {
+  padding: 0 6px;
+  font-weight: 600;
+}
+.inventory-service-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.inventory-service-options .check-option {
+  flex: 1 1 110px;
+}
+.inventory-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.inventory-ledger {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.inventory-ledger dl {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 7px 14px;
+  font-size: 12px;
+}
+.inventory-ledger dt {
+  color: var(--muted);
+}
+.inventory-ledger dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 767px) {
+  .inventory-cards,
+  .inventory-filters {
+    grid-template-columns: 1fr;
+  }
+  .inventory-tabs .button {
+    flex: 1;
+  }
+  .inventory-card,
+  .inventory-component {
+    padding: 14px;
+  }
+  .inventory-card .form-footer .button {
+    flex: 1 1 130px;
+  }
+}

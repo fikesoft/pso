@@ -1,0 +1,56 @@
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.mobile-context {
+  display: none;
+}
+.permission-option > label {
+  display: flex;
+  min-height: 44px;
+  flex-direction: column;
+  justify-content: center;
+  cursor: pointer;
+}
+@media (max-width: 767px) {
+  .mobile-context {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: #f0f4f1;
+    border-bottom: 1px solid #e2e9e4;
+    font-size: 9px;
+    color: #6b7d70;
+  }
+  .mobile-context strong {
+    font-size: 10px;
+    overflow-wrap: anywhere;
+  }
+  .mobile-context span {
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+}
+
+.access-table.with-proposal .access-row {
+  grid-template-columns: minmax(0, 1.8fr) 70px 70px 70px;
+}
+@media (max-width: 767px) {
+  .access-table.with-proposal .access-row {
+    grid-template-columns: minmax(0, 1fr) 48px 48px 48px;
+    font-size: 9px;
+    padding: 10px 7px;
+    gap: 4px;
+  }
+  .access-table.with-proposal .access-row:first-child {
+    font-size: 8px;
+  }
+  .access-table.with-proposal .access-check {
+    gap: 1px;
+  }
+}

@@ -1,0 +1,1 @@
+export const NOTIFICATION_RECONNECT_MS = 1_000;

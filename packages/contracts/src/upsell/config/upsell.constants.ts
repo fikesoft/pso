@@ -1,0 +1,4 @@
+export const MAX_LOCATION_UPSELL_RULES = 500;
+export const MAX_SOURCE_UPSELL_RULES = 10;
+export const MAX_UPSELL_CART_PRODUCTS = 100;
+export const MAX_UPSELL_SUGGESTIONS = 5;

@@ -1,0 +1,2 @@
+export const CUSTOMER_MANAGEMENT_ACTIONS = ['UPDATE', 'ARCHIVE', 'RESTORE'] as const;
+export const CUSTOMER_MANAGEMENT_FILTERS = ['ACTIVE', 'ARCHIVED', 'ALL'] as const;

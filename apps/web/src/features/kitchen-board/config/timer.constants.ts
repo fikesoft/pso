@@ -1,0 +1,1 @@
+export const KITCHEN_TIMER_INTERVAL_MS = 1000;

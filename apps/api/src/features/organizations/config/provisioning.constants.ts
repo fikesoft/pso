@@ -1,0 +1,1 @@
+export const PROVISIONING_MFA_MINUTES = 15;

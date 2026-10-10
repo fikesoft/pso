@@ -1,0 +1,237 @@
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  text-align: left;
+}
+.data-table thead {
+  background: #fbfcfd;
+  color: #8a94a2;
+  font-size: 10px;
+}
+.data-table th {
+  font-weight: 500;
+  padding: 13px 21px;
+  border-bottom: 1px solid var(--line);
+}
+.data-table td {
+  padding: 16px 21px;
+  border-bottom: 1px solid #edf0f4;
+  vertical-align: middle;
+  overflow-wrap: anywhere;
+}
+.data-table tr:last-child td {
+  border-bottom: 0;
+}
+.data-table td strong {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+}
+.data-table td small {
+  color: #939ca8;
+  display: block;
+  margin-top: 3px;
+  font-size: 10px;
+}
+.data-table td .button {
+  font-size: 11px;
+}
+.table-person {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+.actions-cell {
+  text-align: right;
+}
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.inline {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+.permission-picker {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  max-height: 360px;
+  overflow-y: auto;
+}
+.permission-option {
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 12px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+  font-weight: 500;
+}
+.permission-option:last-child {
+  border: 0;
+}
+.permission-option input[type='checkbox'],
+.check-option input {
+  accent-color: var(--accent);
+  width: 17px;
+  height: 17px;
+}
+.permission-option small {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 400;
+  margin-top: 2px;
+}
+.permission-option .limits-fields {
+  grid-column: 2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.permission-option .limits-fields .field {
+  font-size: 11px;
+}
+@media (max-width: 479px) {
+  .permission-option .limits-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.check-options {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.check-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  font-size: 12px;
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  border-radius: 8px;
+}
+.details-block {
+  background: #f8faf9;
+  border: 1px solid #e3eae6;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+.details-block h3 {
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+.credential {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 17px;
+  background: #fff7e8;
+  border: 1px solid #ead8ac;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+.credential code {
+  font-size: 16px;
+  overflow-wrap: anywhere;
+  user-select: all;
+  color: #614e29;
+}
+.credential p {
+  font-size: 12px;
+  margin: 0;
+  color: #8e7850;
+}
+.access-table {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.access-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) 80px 80px;
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid var(--line);
+  font-size: 11px;
+  align-items: center;
+}
+.access-row:first-child {
+  background: #f8faf9;
+  font-size: 10px;
+  color: var(--muted);
+}
+.access-row:last-child {
+  border: 0;
+}
+.access-row small {
+  display: block;
+  color: #939ca8;
+  font-size: 9px;
+  overflow-wrap: anywhere;
+  margin-top: 4px;
+}
+.access-check {
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.access-no {
+  color: #a1a8b1;
+}
+.scope-hint {
+  font-size: 11px;
+  color: #88948c;
+  margin: 8px 0 0;
+}
+.role-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+.role-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 22px;
+}
+.role-card-head {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 15px;
+}
+.role-card h3 {
+  margin: 0;
+  font-size: 14px;
+}
+.role-card p {
+  font-size: 12px;
+  min-height: 18px;
+}
+.role-card .form-footer {
+  margin-top: 18px;
+  padding-top: 14px;
+}
+.permission-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-height: 35px;
+}
+.permission-tags .badge {
+  font-size: 10px;
+  white-space: normal;
+}

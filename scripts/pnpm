@@ -1,0 +1,5 @@
+#!/bin/sh
+cd "$(dirname "$0")/.." || exit 1
+export PATH="$PWD/.tools/node_modules/node/bin:$PWD/.tools/node_modules/.bin:$PWD/node_modules/.bin:$PATH"
+export NEXT_TELEMETRY_DISABLED=1
+exec "$PWD/.tools/node_modules/.bin/pnpm" "$@"

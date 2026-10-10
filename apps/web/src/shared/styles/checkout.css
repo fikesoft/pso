@@ -1,0 +1,53 @@
+.checkout-receipt {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--ink);
+  background: #f8faf9;
+  border: 1px solid var(--line);
+  padding: 16px;
+  border-radius: 8px;
+}
+@media print {
+  @page {
+    margin: 10mm;
+  }
+  html:has(.checkout-receipt),
+  body:has(.checkout-receipt) {
+    height: auto !important;
+    overflow: visible !important;
+    position: static !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  body:has(.checkout-receipt) > :not(.dialog-content),
+  body:has(.checkout-receipt) .dialog-content:not(:has(.checkout-receipt)) {
+    display: none !important;
+  }
+  .dialog-content:has(.checkout-receipt) {
+    display: block !important;
+    position: static !important;
+    transform: none !important;
+    width: 100% !important;
+    max-height: none !important;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .dialog-content:has(.checkout-receipt) > header,
+  .checkout-actions {
+    display: none !important;
+  }
+  .dialog-content:has(.checkout-receipt) .dialog-body {
+    padding: 0;
+    overflow: visible;
+  }
+  .checkout-receipt {
+    border: 0;
+    padding: 0;
+    color: black;
+    background: white;
+    font-size: 11pt;
+  }
+}

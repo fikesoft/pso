@@ -1,0 +1,17 @@
+export const mediaMessages = {
+  employeeTitle: 'Fotografia angajatului',
+  productTitle: 'Imaginea produsului',
+  noImage: 'Fără imagine',
+  file: 'Alege fotografia',
+  noFile: 'Nicio fotografie selectată',
+  hint: 'JPEG, PNG sau WebP, maximum 4 MiB. Fotografia se păstrează privat.',
+  save: 'Salvează fotografia',
+  remove: 'Elimină fotografia',
+  removeTitle: 'Elimină fotografia afișată?',
+  removeHint: 'Fotografia nu va mai apărea pe profil sau produs. Istoricul rămâne păstrat.',
+  cancel: 'Înapoi',
+  invalidFile: 'Alege un fișier JPEG, PNG sau WebP de cel mult 4 MiB.',
+  saved: 'Fotografia a fost actualizată.',
+  unknown: 'Rezultatul cererii nu este confirmat. Reîncearcă aceeași cerere.',
+  retry: 'Reîncearcă aceeași cerere',
+} as const;

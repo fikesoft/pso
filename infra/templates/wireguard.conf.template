@@ -1,0 +1,8 @@
+# Documentation template; never execute automatically. Keys generated on operator host only.
+[Interface]
+Address = PRIVATE_VPN_SERVER_CIDR
+PrivateKey = GENERATED_SERVER_PRIVATE_KEY_OUTSIDE_REPO
+ListenPort = OPERATOR_APPROVED_UDP_PORT
+[Peer]
+PublicKey = OWNER_DEVICE_PUBLIC_KEY
+AllowedIPs = OWNER_DEVICE_VPN_IP/32

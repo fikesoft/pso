@@ -1,0 +1,31 @@
+.kitchen-alert {
+  display: inline-block;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  padding: 4px 8px;
+  margin: 4px 6px 4px 0;
+  font-size: 13px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.kitchen-alert-normal {
+  color: #215d3c;
+  background: #eff9f2;
+}
+.operation-ticket li .kitchen-alert {
+  margin-left: 6px;
+}
+.kitchen-alert-warning {
+  color: #744400;
+  background: #fff1ca;
+}
+.kitchen-alert-critical {
+  color: #941d28;
+  background: #ffe9e9;
+}
+.operation-ticket[data-kitchen-alert='WARNING'] {
+  border-top-color: #a76600;
+}
+.operation-ticket[data-kitchen-alert='CRITICAL'] {
+  border-top-color: #bc2735;
+}

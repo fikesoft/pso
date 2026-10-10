@@ -1,0 +1,132 @@
+@media (max-width: 767px) {
+  .pos-header {
+    height: auto;
+    min-height: 78px;
+    padding: 15px 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .pos-header .brand {
+    font-size: 23px;
+  }
+  .pos-header .brand-mark {
+    display: none;
+  }
+  .demo-identity {
+    min-width: 190px;
+    font-size: 10px;
+  }
+  .demo-identity span {
+    font-size: 9px;
+  }
+  .pos-header > .badge {
+    font-size: 9px;
+  }
+  .pos-header > .icon-button {
+    margin-left: auto;
+    min-height: 44px;
+  }
+  .demo-warning {
+    font-size: 9px;
+    padding: 9px 17px;
+    text-align: left;
+  }
+  .pos-layout {
+    display: block;
+  }
+  .product-area {
+    padding: 22px 16px 95px;
+  }
+  .pos-heading h1 {
+    font-size: 21px;
+  }
+  .pos-heading .eyebrow {
+    font-size: 8px;
+  }
+  .pos-heading .field {
+    font-size: 10px;
+  }
+  .pos-heading select {
+    padding: 8px;
+    font-size: 11px;
+  }
+  .demo-search {
+    margin-top: 18px;
+    margin-bottom: 18px;
+  }
+  .category-nav {
+    gap: 7px;
+  }
+  .category-nav button {
+    font-size: 11px;
+    padding: 10px 14px;
+  }
+  .product-grid {
+    gap: 12px;
+  }
+  .product-art {
+    height: 98px;
+    font-size: 50px;
+  }
+  .product-info {
+    padding: 13px;
+  }
+  .product-info h2 {
+    font-size: 12px;
+  }
+  .product-info > small {
+    font-size: 8px;
+  }
+  .product-info p {
+    font-size: 9px;
+    min-height: 30px;
+  }
+  .product-info strong {
+    font-size: 12px;
+  }
+  .product-info > div {
+    margin-top: 10px;
+  }
+  .cart-panel {
+    display: none;
+  }
+  .pos-mobile-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-top: 1px solid var(--line);
+    padding: 10px 16px max(10px, env(safe-area-inset-bottom));
+    gap: 15px;
+    z-index: 30;
+  }
+  .pos-mobile-nav > button {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 0;
+    background: transparent;
+    color: #6d8173;
+    font-size: 11px;
+  }
+  .pos-mobile-nav .mobile-cart {
+    flex: 1;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 9px;
+  }
+  .pos-mobile-nav .badge {
+    background: #fff2;
+    color: #fff;
+  }
+  .cart-empty {
+    padding: 30px 20px;
+  }
+  .cart-footer {
+    margin-top: 30px;
+  }
+}

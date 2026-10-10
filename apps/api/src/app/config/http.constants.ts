@@ -1,0 +1,2 @@
+export const JSON_BODY_LIMIT = '128kb';
+export const TENANT_REALTIME_READY_TIMEOUT_MS = 20_000;

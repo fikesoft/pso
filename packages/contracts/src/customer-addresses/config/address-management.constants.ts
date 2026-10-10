@@ -1,0 +1,7 @@
+export const ADDRESS_MANAGEMENT_ACTIONS = [
+  'UPDATE',
+  'ARCHIVE',
+  'SET_DEFAULT',
+  'CLEAR_DEFAULT',
+] as const;
+export const ADDRESS_MANAGEMENT_FILTERS = ['ACTIVE', 'ARCHIVED', 'ALL'] as const;

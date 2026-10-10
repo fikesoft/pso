@@ -1,0 +1,70 @@
+# Dependențe, runtime-uri și date de dezvoltare locale
+node_modules/
+.pnpm-store/
+.tools/
+.local/
+/.codex/
+/.agents/
+/.aws/
+
+# Documentație păstrată numai local pentru prototip
+/docs/
+
+# Secrete și configurări locale; exemplul fără secrete rămâne versionat
+.env
+.env.*
+!.env.example
+.envrc
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+# Build, cod generat și cache-uri
+.next/
+dist/
+out/
+/build/
+packages/db/generated/
+*.tsbuildinfo
+.cache/
+.turbo/
+.vite/
+.vitest/
+.eslintcache
+.stylelintcache
+.vercel/
+
+# Rezultate și rapoarte de test; testele sursă sunt necesare pentru CI
+coverage/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+/junit.xml
+/junit-*.xml
+/test-report.xml
+
+# Fișiere temporare, loguri și copii locale
+/tmp/
+/temp/
+/backups/
+*.log
+*.log.*
+*.dump
+*.sql.gz
+*.bak
+*.tmp
+*.swp
+*.swo
+*~
+
+# Metadate OS și configurări personale ale editorului
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/

@@ -1,0 +1,71 @@
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: #13201b66;
+  z-index: 50;
+  backdrop-filter: blur(3px);
+}
+.dialog-content {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(680px, calc(100vw - 40px));
+  max-height: 90dvh;
+  z-index: 51;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 80px #10271d26;
+  display: flex;
+  flex-direction: column;
+}
+.dialog-content > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  padding: 23px 25px 17px;
+  gap: 12px;
+}
+.dialog-content h2 {
+  margin: 0 0 6px;
+  font-size: 20px;
+}
+.dialog-content header p {
+  margin: 0;
+  font-size: 13px;
+}
+.dialog-body {
+  padding: 24px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  font-size: 25px;
+  font-weight: 750;
+  letter-spacing: -1px;
+  gap: 1px;
+}
+.brand-mark {
+  display: inline-flex;
+  padding: 7px;
+  background: var(--accent);
+  color: white;
+  border-radius: 9px;
+  margin-right: 10px;
+}
+.brand-dot {
+  color: #609a7c;
+}
+.brand-caption {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.4px;
+  margin-left: 14px;
+  padding-left: 14px;
+  border-left: 1px solid #dbe3dc;
+  line-height: 1.6;
+  max-width: 110px;
+}

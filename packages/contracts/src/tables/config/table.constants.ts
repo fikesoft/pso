@@ -1,0 +1,20 @@
+export const DINING_TABLE_STATUSES = ['ACTIVE', 'ARCHIVED'] as const;
+export const TABLE_VISIT_STATUSES = ['OPEN', 'CLOSED', 'MERGED'] as const;
+export const TABLE_MAP_STATES = [
+  'FREE',
+  'OCCUPIED',
+  'WAITING_FOOD',
+  'READY',
+  'PAYMENT_REQUESTED',
+] as const;
+export const TABLE_VISIT_COMMAND_KINDS = [
+  'OPEN',
+  'GUEST_COUNT_CHANGED',
+  'BILL_REQUESTED',
+  'BILL_CANCELLED',
+  'WAITER_CHANGED',
+  'CLOSE',
+  'MOVED',
+  'MERGED',
+  'MERGE_RECEIVED',
+] as const;

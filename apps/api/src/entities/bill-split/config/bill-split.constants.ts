@@ -1,0 +1,3 @@
+export const BILL_SPLIT_MAX_ORDERS = 100;
+export const BILL_SPLIT_MAX_PARTS = 50;
+export const BILL_SPLIT_MAX_CENTS = 999999999999999999n;

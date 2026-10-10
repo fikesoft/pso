@@ -1,0 +1,2153 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "postgresql"
+}
+// Composite FK, RLS, partial uniqueness and CHECK constraints live in versioned SQL.
+model PlatformAdmin {
+  id String @id @default(uuid()) @db.Uuid
+  loginNormalized String @unique
+  displayName String
+  passwordHash String
+  status String @default("ACTIVE")
+  authVersion Int @default(1)
+  mustChangePassword Boolean @default(false)
+  mfaRequired Boolean @default(true)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+}
+model PlatformSession {
+  id String @id @default(uuid()) @db.Uuid
+  tokenHash String @unique
+  platformAdminId String @db.Uuid
+  authVersion Int
+  mfaVerifiedAt DateTime? @db.Timestamptz(3)
+  expiresAt DateTime @db.Timestamptz(3)
+  idleExpiresAt DateTime @db.Timestamptz(3)
+  lastSeenAt DateTime @default(now()) @db.Timestamptz(3)
+  revokedAt DateTime? @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@index([platformAdminId])
+}
+model Organization {
+  id String @id @default(uuid()) @db.Uuid
+  slug String @unique
+  name String
+  legalName String?
+  currency String @default("MDL")
+  locale String @default("ro-MD")
+  timezone String @default("Europe/Chisinau")
+  status String @default("DRAFT")
+  primaryAdminUserId String? @db.Uuid
+  policyVersion Int @default(1)
+  version Int @default(1)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+}
+model Location {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  code String
+  name String
+  address String?
+  brandId String? @db.Uuid
+  phone String?
+  latitude Decimal? @db.Decimal(9,6)
+  longitude Decimal? @db.Decimal(9,6)
+  businessHours Json @default("[]")
+  timezone String @default("Europe/Chisinau")
+  operationalDayStart String @default("04:00")
+  status String @default("ACTIVE")
+  version Int @default(1)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,code])
+}
+model Brand {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  name String
+  code String
+  status String @default("ACTIVE")
+  version Int @default(1)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,code])
+}
+model CompanyUser {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  loginNormalized String
+  displayName String
+  firstName String?
+  lastName String?
+  phone String?
+  email String?
+  employeeCode String?
+  hireDate DateTime? @db.Date
+  avatarAssetId String? @db.Uuid
+  passwordHash String
+  authenticationMethod String @default("PASSWORD")
+  pinLookup String?
+  pinHash String?
+  mustChangePassword Boolean @default(true)
+  temporaryPasswordExpiresAt DateTime? @db.Timestamptz(3)
+  activatedAt DateTime? @db.Timestamptz(3)
+  status String @default("ACTIVE")
+  authVersion Int @default(1)
+  isPrimaryAdmin Boolean @default(false)
+  mfaRequired Boolean @default(false)
+  createdByUserId String? @db.Uuid
+  createdByPlatformAdminId String? @db.Uuid
+  managedByUserId String? @db.Uuid
+  version Int @default(1)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,loginNormalized])
+  @@unique([organizationId,pinLookup])
+}
+model UserLocationAccess {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  userId String @db.Uuid
+  locationId String @db.Uuid
+  isDefault Boolean @default(false)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,userId,locationId])
+}
+model WorkShift {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  userId String @db.Uuid
+  locationId String @db.Uuid
+  startedAt DateTime @default(now()) @db.Timestamptz(3)
+  endedAt DateTime? @db.Timestamptz(3)
+  status String @default("ACTIVE")
+  version Int @default(1)
+  startRequestKey String @db.Uuid
+  roleSnapshot Json
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,id,userId])
+  @@unique([organizationId,userId,startRequestKey])
+  @@index([organizationId,locationId,startedAt])
+  @@index([organizationId,userId,startedAt])
+}
+model WorkBreak {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  shiftId String @db.Uuid
+  userId String @db.Uuid
+  startedAt DateTime @default(now()) @db.Timestamptz(3)
+  endedAt DateTime? @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@index([organizationId,shiftId,startedAt])
+}
+model AttendanceEvent {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  shiftId String @db.Uuid
+  userId String @db.Uuid
+  actorUserId String @db.Uuid
+  action String
+  requestKey String @db.Uuid
+  requestHash String
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  shiftVersion Int @default(1)
+  @@unique([organizationId,id])
+  @@unique([organizationId,userId,requestKey])
+  @@unique([organizationId,shiftId,shiftVersion])
+  @@index([organizationId,locationId,createdAt])
+}
+model Permission {
+  key String @id
+  label String
+  scopeTypes String[]
+  delegable Boolean @default(false)
+}
+model Role {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  name String
+  description String?
+  status String @default("ACTIVE")
+  createdByUserId String @db.Uuid
+  version Int @default(1)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,name])
+}
+model RoleVersion {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  roleId String @db.Uuid
+  version Int
+  createdByUserId String @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,roleId,version])
+}
+model RolePermission {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  roleVersionId String @db.Uuid
+  permissionKey String
+  maxAmount Decimal? @db.Decimal(18,2)
+  maxPercent Decimal? @db.Decimal(5,2)
+  @@unique([organizationId,roleVersionId,permissionKey])
+}
+model UserRoleAssignment {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  userId String @db.Uuid
+  roleVersionId String @db.Uuid
+  scopeType String
+  locationId String? @db.Uuid
+  issuedByUserId String @db.Uuid
+  delegationGrantId String? @db.Uuid
+  revokedAt DateTime? @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@index([organizationId,userId])
+}
+model UserPermissionOverride {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  userId String @db.Uuid
+  permissionKey String
+  effect String
+  scopeType String
+  locationId String? @db.Uuid
+  maxAmount Decimal? @db.Decimal(18,2)
+  maxPercent Decimal? @db.Decimal(5,2)
+  issuedByUserId String @db.Uuid
+  delegationGrantId String? @db.Uuid
+  revokedAt DateTime? @db.Timestamptz(3)
+  reason String?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@index([organizationId,userId])
+}
+model DelegationGrant {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  userId String @db.Uuid
+  issuedByUserId String @db.Uuid
+  scopeType String
+  locationId String? @db.Uuid
+  parentGrantId String? @db.Uuid
+  canRedelegate Boolean @default(false)
+  status String @default("ACTIVE")
+  revokedAt DateTime? @db.Timestamptz(3)
+  reason String?
+  version Int @default(1)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@index([organizationId,userId])
+}
+model DelegationGrantPermission {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  delegationGrantId String @db.Uuid
+  permissionKey String
+  maxAmount Decimal? @db.Decimal(18,2)
+  maxPercent Decimal? @db.Decimal(5,2)
+  @@unique([organizationId,delegationGrantId,permissionKey])
+}
+model TenantSession {
+  id String @id @default(uuid()) @db.Uuid
+  tokenHash String @unique
+  organizationId String @db.Uuid
+  userId String @db.Uuid
+  authVersion Int
+  authenticationMethod String @default("PASSWORD")
+  policyVersion Int
+  mfaVerifiedAt DateTime? @db.Timestamptz(3)
+  expiresAt DateTime @db.Timestamptz(3)
+  idleExpiresAt DateTime @db.Timestamptz(3)
+  lastSeenAt DateTime @default(now()) @db.Timestamptz(3)
+  revokedAt DateTime? @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@index([organizationId,userId])
+}
+model MfaCredential {
+  id String @id @default(uuid()) @db.Uuid
+  principalType String
+  organizationId String? @db.Uuid
+  userId String? @db.Uuid
+  platformAdminId String? @db.Uuid
+  encryptedSecret String
+  status String @default("PENDING")
+  lastUsedStep BigInt?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  activatedAt DateTime? @db.Timestamptz(3)
+  @@unique([organizationId,id])
+}
+model RecoveryCode {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String? @db.Uuid
+  mfaCredentialId String @db.Uuid
+  codeHash String @unique
+  usedAt DateTime? @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+}
+model AuditEvent {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String? @db.Uuid
+  locationId String? @db.Uuid
+  actorUserId String? @db.Uuid
+  actorDisplayName String?
+  orderVersion Int?
+  actorPlatformAdminId String? @db.Uuid
+  action String
+  targetType String
+  targetId String?
+  metadata Json @default("{}")
+  outcome String
+  requestId String
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@index([organizationId,locationId,createdAt])
+}
+
+// Stage C: protected catalog, draft orders and immutable kitchen snapshots.
+model Category {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  name String
+  sortOrder Int @default(0)
+  status String @default("ACTIVE")
+  version Int @default(1)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,name])
+  @@unique([organizationId,id,status])
+}
+model Product {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  categoryId String? @db.Uuid
+  name String
+  sku String
+  description String?
+  imageAssetId String? @db.Uuid
+  taxRate Decimal? @db.Decimal(7,4)
+  calories Decimal? @db.Decimal(9,3)
+  protein Decimal? @db.Decimal(9,3)
+  fat Decimal? @db.Decimal(9,3)
+  carbs Decimal? @db.Decimal(9,3)
+  nutritionBasis String @default("PER_PORTION")
+  allergens String[] @default([])
+  allergensDeclared Boolean @default(false)
+  ingredients String[] @default([])
+  ingredientsDeclared Boolean @default(false)
+  status String @default("ACTIVE")
+  // Generated by migration SQL; the client cannot choose or mutate this FK discriminator.
+  activeCategoryStatus String? @default(dbgenerated()) @ignore
+  version Int @default(1)
+  createdByUserId String @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,sku])
+}
+model FileAsset {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String? @db.Uuid
+  purpose String
+  employeeId String? @db.Uuid
+  productId String? @db.Uuid
+  storageKey String @unique
+  mimeType String
+  size Int
+  width Int
+  height Int
+  checksum String
+  createdByUserId String @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,id,employeeId])
+  @@unique([organizationId,id,productId])
+  @@index([organizationId,employeeId])
+  @@index([organizationId,productId])
+}
+model FileAssetMutation {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  actorUserId String @db.Uuid
+  purpose String
+  employeeId String? @db.Uuid
+  productId String? @db.Uuid
+  action String
+  assetId String? @db.Uuid
+  requestKey String @db.Uuid
+  requestHash String
+  resourceVersion Int
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,actorUserId,requestKey])
+  @@unique([organizationId,employeeId,resourceVersion])
+  @@unique([organizationId,productId,resourceVersion])
+}
+model LocationProduct {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  productId String @db.Uuid
+  price Decimal @db.Decimal(18,4)
+  enabled Boolean @default(true)
+  version Int @default(1)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,productId])
+}
+model MenuSchedule {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  name String
+  eventName String?
+  weekdays Int[]
+  startMinute Int
+  endMinute Int
+  startsOn DateTime? @db.Date
+  endsOn DateTime? @db.Date
+  status String @default("ACTIVE")
+  version Int @default(1)
+  requestKey String @db.Uuid
+  requestHash String
+  createdByUserId String @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,id])
+  @@unique([organizationId,locationId,requestKey])
+  @@index([organizationId,locationId,status,id])
+}
+model MenuScheduleProduct {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  menuScheduleId String @db.Uuid
+  productId String @db.Uuid
+  @@unique([organizationId,id])
+  @@unique([organizationId,menuScheduleId,productId])
+  @@index([organizationId,locationId,productId])
+}
+model ModifierGroup {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  name String
+  minSelections Int @default(0)
+  maxSelections Int @default(1)
+  sortOrder Int @default(0)
+  status String @default("ACTIVE")
+  version Int @default(1)
+  createdByUserId String @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  @@unique([organizationId,id])
+}
+model ModifierOption {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  modifierGroupId String @db.Uuid
+  name String
+  extraPrice Decimal @db.Decimal(18,4)
+  sortOrder Int @default(0)
+  status String @default("ACTIVE")
+  version Int @default(1)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,modifierGroupId,id])
+}
+model ProductModifierGroup {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  productId String @db.Uuid
+  modifierGroupId String @db.Uuid
+  sortOrder Int @default(0)
+  status String @default("ACTIVE")
+  version Int @default(1)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,productId,modifierGroupId])
+  @@unique([organizationId,id,modifierGroupId])
+}
+model ModifierRecipeVersion {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  productId String @db.Uuid
+  modifierOptionId String @db.Uuid
+  version Int
+  requestKey String @db.Uuid
+  requestHash String
+  reason String
+  createdByUserId String @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,productId,modifierOptionId,version])
+  @@unique([organizationId,requestKey])
+}
+model ModifierRecipeComponent {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  modifierRecipeVersionId String @db.Uuid
+  inventoryItemId String @db.Uuid
+  position Int
+  purpose String
+  quantityPerUnit Decimal @db.Decimal(18,3)
+  serviceTypes String[]
+  @@unique([organizationId,id])
+  @@unique([organizationId,modifierRecipeVersionId,inventoryItemId], map: "modifier_recipe_component_item_key")
+  @@unique([organizationId,modifierRecipeVersionId,position], map: "modifier_recipe_component_position_key")
+}
+model Order {
+  deliveryFee Decimal @default(0) @db.Decimal(18,2)
+  deliveryFeeCommandId String? @db.Uuid
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  brandId String? @db.Uuid
+  source String? @default("POS")
+  number Int
+  status String @default("DRAFT")
+  deliveryStatus String? @default(dbgenerated())
+  deliveryCourierId String? @db.Uuid
+  deliveryCourierName String?
+  serviceType String
+  tableVisitId String? @db.Uuid
+  tableLabel String?
+  notes String?
+  deliveryAddressEncrypted String?
+  deliveryAddressHash String?
+  customerAddressId String? @db.Uuid
+  customerAddressVersionSnapshot Int?
+  customerId String? @db.Uuid
+  customerVersionSnapshot Int?
+  customerDataEncrypted String?
+  customerNameLookupHash String?
+  customerPhoneLookupHash String?
+  currency String @default("MDL")
+  total Decimal @default(0) @db.Decimal(18,2)
+  version Int @default(1)
+  kitchenStatus String @default("NOT_SENT")
+  clientRequestId String @db.Uuid
+  creationRequestHash String
+  createdByUserId String @db.Uuid
+  updatedByUserId String @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,id])
+  @@unique([organizationId,locationId,number])
+  @@unique([organizationId,locationId,clientRequestId])
+  @@index([organizationId,locationId,status,createdAt])
+  @@index([organizationId,customerId,id])
+  @@index([organizationId,locationId,customerId,number])
+  @@index([organizationId,locationId,customerNameLookupHash,number])
+  @@index([organizationId,locationId,customerPhoneLookupHash,number])
+  @@index([organizationId,locationId,createdByUserId,number])
+  @@index([organizationId,locationId,createdAt])
+}
+model OrderItem {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  orderId String @db.Uuid
+  productId String @db.Uuid
+  position Int
+  courseNumber Int @default(0)
+  productName String
+  productSku String
+  unitPrice Decimal @db.Decimal(18,4)
+  taxRateSnapshot Decimal? @db.Decimal(7,4)
+  baseUnitPrice Decimal @default(dbgenerated()) @db.Decimal(18,4)
+  sourceWebsiteOrderItemId String? @db.Uuid
+  sourceUpsellOfferId String? @db.Uuid
+  modifierCreatedTransaction BigInt @default(dbgenerated("txid_current()")) @ignore
+  quantity Decimal @db.Decimal(18,3)
+  lineTotal Decimal @db.Decimal(18,2)
+  note String?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  @@unique([organizationId,locationId,orderId,id], map: "order_item_bill_identity")
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,id])
+  @@unique([organizationId,orderId,position])
+}
+model OrderItemModifierGroup {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  orderItemId String @db.Uuid
+  productModifierGroupId String @db.Uuid
+  modifierGroupId String @db.Uuid
+  groupName String
+  minSelections Int
+  maxSelections Int
+  groupVersion Int
+  bindingVersion Int
+  position Int
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,orderItemId,id,modifierGroupId])
+  @@unique([organizationId,orderItemId,modifierGroupId])
+  @@unique([organizationId,orderItemId,position])
+}
+model OrderItemModifier {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  orderItemId String @db.Uuid
+  modifierGroupSnapshotId String @db.Uuid
+  modifierGroupId String @db.Uuid
+  modifierOptionId String @db.Uuid
+  optionName String
+  extraPrice Decimal @db.Decimal(18,4)
+  optionVersion Int
+  position Int
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,orderItemId,id])
+  @@unique([organizationId,orderItemId,modifierOptionId])
+  @@unique([organizationId,modifierGroupSnapshotId,position])
+}
+model KitchenTicket {
+  generationTransaction BigInt @default(dbgenerated("txid_current()")) @ignore
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  orderId String @db.Uuid
+  revision Int @default(1)
+  orderVersion Int
+  requestKey String @db.Uuid
+  requestHash String
+  status String @default("QUEUED")
+  version Int @default(1)
+  sentByUserId String @db.Uuid
+  updatedByUserId String? @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,id])
+  @@unique([organizationId,locationId,orderId,id], map: "kitchen_packing_order_identity")
+  @@unique([organizationId,orderId,revision])
+  @@unique([organizationId,locationId,requestKey])
+  @@index([organizationId,locationId,status,createdAt])
+}
+model KitchenTicketItem {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  ticketId String @db.Uuid
+  orderItemId String @db.Uuid
+  productId String @default(dbgenerated()) @db.Uuid
+  categoryId String? @db.Uuid
+  categorySnapshotKnown Boolean @default(false)
+  position Int
+  courseNumber Int @default(0)
+  productName String
+  productSku String
+  quantity Decimal @db.Decimal(18,3)
+  note String?
+  modifierSnapshot Json @default("[]")
+  @@unique([organizationId,locationId,ticketId,id], map: "kitchen_item_batch_identity")
+  @@unique([organizationId,id])
+  @@unique([organizationId,ticketId,position])
+  @@unique([organizationId,ticketId,orderItemId])
+}
+model PackingSession {
+  handoverRequired Boolean @default(true)
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  orderId String @db.Uuid
+  ticketId String @db.Uuid
+  status String @default("WAITING")
+  version Int @default(1)
+  createdByUserId String @db.Uuid
+  updatedByUserId String @db.Uuid
+  startedByUserId String? @db.Uuid
+  completedByUserId String? @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @default(now()) @db.Timestamptz(3)
+  startedAt DateTime? @db.Timestamptz(3)
+  completedAt DateTime? @db.Timestamptz(3)
+  cancelledAt DateTime? @db.Timestamptz(3)
+  lastCommandId String? @db.Uuid
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,id])
+  @@unique([organizationId,locationId,ticketId,id])
+  @@unique([organizationId,orderId])
+  @@unique([organizationId,ticketId])
+  @@index([organizationId,locationId,status,createdAt,id], map: "packing_session_board")
+}
+model PackingItem {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  sessionId String @db.Uuid
+  ticketId String @db.Uuid
+  ticketItemId String @db.Uuid
+  checked Boolean @default(false)
+  checkedAt DateTime? @db.Timestamptz(3)
+  checkedByUserId String? @db.Uuid
+  lastCommandId String? @db.Uuid
+  @@unique([organizationId,locationId,sessionId,id])
+  @@unique([organizationId,sessionId,ticketItemId])
+}
+model PackingCommand {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  sessionId String @db.Uuid
+  actorUserId String @db.Uuid
+  requestKey String @db.Uuid
+  action String
+  status String
+  requestHash String?
+  expectedVersion Int?
+  resultVersion Int?
+  resultStatus String?
+  itemId String? @db.Uuid
+  checked Boolean?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,requestKey])
+  @@unique([organizationId,locationId,sessionId,id])
+  @@unique([organizationId,sessionId,resultVersion])
+}
+model OrderStatusEvent {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  orderId String @db.Uuid
+  kind String
+  fromStatus String?
+  toStatus String
+  actorUserId String @db.Uuid
+  actorDisplayName String?
+  reason String?
+  requestKey String? @db.Uuid
+  requestHash String?
+  orderVersion Int?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,locationId,requestKey], map: "order_event_request_unique")
+  @@index([organizationId,locationId,orderId,createdAt])
+  @@unique([organizationId,locationId,orderId,id], map: "order_event_responsibility_source")
+}
+
+model OrderRealtimeEvent {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  orderId String @db.Uuid
+  orderVersion Int
+  type String
+  amountSnapshot Decimal @db.Decimal(18,2)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,orderId,orderVersion])
+  @@index([organizationId,locationId,createdAt])
+}
+model OrderCreationClaim {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  requestKey String @db.Uuid
+  status String
+  orderId String? @db.Uuid
+  requestHash String?
+  actorUserId String @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,locationId,requestKey])
+  @@unique([organizationId,orderId])
+}
+
+// Finalization is immutable; DEMO receipts never create a Payment.
+model Checkout {
+  cashShiftId String? @db.Uuid
+  cashShiftVersion Int?
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  orderId String @db.Uuid
+  requestKey String @db.Uuid
+  requestHash String
+  mode String
+  method String?
+  currency String @default("MDL")
+  total Decimal @db.Decimal(18,2)
+  receivedAmount Decimal? @db.Decimal(18,2)
+  changeAmount Decimal? @db.Decimal(18,2)
+  companyName String
+  locationName String
+  locationCode String
+  cashierName String
+  createdByUserId String @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,id])
+  @@unique([organizationId,orderId])
+  @@unique([organizationId,locationId,requestKey])
+  @@unique([organizationId,locationId,orderId,id], map: "checkout_responsibility_source")
+}
+model Payment {
+  cashShiftId String? @db.Uuid
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  checkoutId String? @db.Uuid
+  operationId String? @db.Uuid
+  receivedAmount Decimal? @db.Decimal(18,2)
+  changeAmount Decimal? @db.Decimal(18,2)
+  orderId String @db.Uuid
+  amount Decimal @db.Decimal(18,2)
+  currency String @default("MDL")
+  method String
+  origin String @default("MANUAL")
+  confirmedByUserId String @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,checkoutId])
+  @@unique([organizationId,locationId,orderId,id], map: "payment_scope_unique")
+  @@unique([organizationId,operationId,method], map: "payment_operation_method_unique")
+  @@index([organizationId,orderId])
+  @@index([organizationId,locationId,createdAt])
+}
+
+model PaymentOperation {
+  cashShiftId String? @db.Uuid
+  cashShiftVersion Int?
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  orderId String @db.Uuid
+  requestKey String @db.Uuid
+  requestHash String
+  kind String
+  orderVersion Int
+  amount Decimal @db.Decimal(18,2)
+  currency String
+  reason String?
+  fromStatus String @default(dbgenerated())
+  toStatus String @default(dbgenerated())
+  actorUserId String @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,orderId,id])
+  @@unique([organizationId,locationId,requestKey])
+  @@unique([organizationId,orderId,orderVersion])
+  billPartId String? @db.Uuid
+  billCollectionId String? @db.Uuid
+}
+model PaymentRefund {
+  cashShiftId String? @db.Uuid
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  orderId String @db.Uuid
+  operationId String @db.Uuid
+  paymentId String @db.Uuid
+  amount Decimal @db.Decimal(18,2)
+  currency String
+  method String
+  actorUserId String @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,operationId,paymentId])
+  @@index([organizationId,orderId])
+  @@index([organizationId,paymentId])
+}
+
+model InventoryItem {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  sku String
+  name String
+  kind String
+  unit String
+  status String @default("ACTIVE")
+  version Int @default(1)
+  createdByUserId String @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,sku])
+}
+model RecipeVersion {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  productId String @db.Uuid
+  version Int
+  requestKey String @db.Uuid
+  requestHash String
+  reason String
+  createdByUserId String @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,productId,version])
+  @@unique([organizationId,requestKey])
+}
+model RecipeComponent {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  recipeVersionId String @db.Uuid
+  inventoryItemId String @db.Uuid
+  position Int
+  purpose String
+  quantityPerUnit Decimal @db.Decimal(18,3)
+  serviceTypes String[]
+  @@unique([organizationId,id])
+  @@unique([organizationId,recipeVersionId,inventoryItemId])
+  @@unique([organizationId,recipeVersionId,position])
+}
+model InventoryDocument {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  kind String
+  requestKey String @db.Uuid
+  requestHash String
+  reason String
+  orderId String? @db.Uuid
+  createdByUserId String @db.Uuid
+  actorName String
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,id])
+  @@unique([organizationId,locationId,requestKey])
+  @@index([organizationId,locationId,createdAt])
+}
+model InventoryMovement {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  documentId String @db.Uuid
+  inventoryItemId String @db.Uuid
+  quantity Decimal @db.Decimal(18,6)
+  countedQuantity Decimal? @db.Decimal(18,6)
+  itemName String
+  itemSku String
+  unit String
+  orderItemId String? @db.Uuid
+  recipeComponentId String? @db.Uuid
+  modifierRecipeComponentId String? @db.Uuid
+  orderItemModifierId String? @db.Uuid
+  productName String?
+  @@unique([organizationId,id])
+  @@index([organizationId,locationId,inventoryItemId])
+}
+
+model WebsiteConnection {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  name String
+  status String @default("ACTIVE")
+  version Int @default(1)
+  createdByUserId String @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,id])
+}
+model WebsiteApiKey {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  connectionId String @db.Uuid
+  name String
+  secretHash String
+  expiresAt DateTime @db.Timestamptz(3)
+  revokedAt DateTime? @db.Timestamptz(3)
+  createdByUserId String @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,connectionId,id])
+  @@index([organizationId,connectionId,createdAt])
+}
+model WebsiteOrder {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  connectionId String @db.Uuid
+  createdWithKeyId String @db.Uuid
+  externalOrderId String
+  requestKey String @db.Uuid
+  requestHash String
+  status String @default("PENDING")
+  version Int @default(1)
+  serviceType String @default("DELIVERY")
+  currency String @default("MDL")
+  total Decimal @db.Decimal(18,2)
+  customerDataEncrypted String
+  orderId String? @db.Uuid
+  decisionByUserId String? @db.Uuid
+  decidedAt DateTime? @db.Timestamptz(3)
+  rejectionReason String?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,id])
+  @@unique([organizationId,connectionId,externalOrderId])
+  @@unique([organizationId,connectionId,requestKey])
+  @@index([organizationId,locationId,status,createdAt])
+}
+model WebsiteOrderItem {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  websiteOrderId String @db.Uuid
+  productId String @db.Uuid
+  position Int
+  productName String
+  productSku String
+  unitPrice Decimal @db.Decimal(18,4)
+  taxRateSnapshot Decimal? @db.Decimal(7,4)
+  baseUnitPrice Decimal @default(dbgenerated()) @db.Decimal(18,4)
+  modifierCreatedTransaction BigInt @default(dbgenerated("txid_current()")) @ignore
+  quantity Decimal @db.Decimal(18,3)
+  lineTotal Decimal @db.Decimal(18,2)
+  note String?
+  @@unique([organizationId,id])
+  @@unique([organizationId,websiteOrderId,position])
+}
+model WebsiteOrderItemModifierGroup {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  websiteOrderItemId String @db.Uuid
+  productModifierGroupId String @db.Uuid
+  modifierGroupId String @db.Uuid
+  groupName String
+  minSelections Int
+  maxSelections Int
+  groupVersion Int
+  bindingVersion Int
+  position Int
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,websiteOrderItemId,id,modifierGroupId], map: "website_modifier_group_parent_key")
+  @@unique([organizationId,websiteOrderItemId,modifierGroupId], map: "website_modifier_group_source_key")
+  @@unique([organizationId,websiteOrderItemId,position], map: "website_modifier_group_position_key")
+}
+model WebsiteOrderItemModifier {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  websiteOrderItemId String @db.Uuid
+  modifierGroupSnapshotId String @db.Uuid
+  modifierGroupId String @db.Uuid
+  modifierOptionId String @db.Uuid
+  optionName String
+  extraPrice Decimal @db.Decimal(18,4)
+  optionVersion Int
+  position Int
+  @@unique([organizationId,id])
+  @@unique([organizationId,websiteOrderItemId,modifierOptionId], map: "website_modifier_option_source_key")
+  @@unique([organizationId,modifierGroupSnapshotId,position], map: "website_modifier_option_position_key")
+}
+
+model InventoryReservation {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  orderId String @db.Uuid
+  status String @default("PENDING")
+  createdByUserId String @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  resolvedAt DateTime? @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,id])
+  @@unique([organizationId,orderId])
+}
+model InventoryReservationLine {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  reservationId String @db.Uuid
+  inventoryItemId String @db.Uuid
+  orderItemId String @db.Uuid
+  recipeComponentId String? @db.Uuid
+  modifierRecipeComponentId String? @db.Uuid
+  orderItemModifierId String? @db.Uuid
+  quantity Decimal @db.Decimal(18,6)
+  itemName String
+  itemSku String
+  unit String
+  productName String
+  @@unique([organizationId,id])
+  @@unique([organizationId,reservationId,orderItemId,recipeComponentId])
+  @@unique([organizationId,reservationId,orderItemModifierId,modifierRecipeComponentId], map: "inventory_modifier_reservation_source_key")
+  @@index([organizationId,locationId,inventoryItemId])
+}
+
+model InventoryLegacyOrder {
+  orderId String @id @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  reason String @default("UNTRACKED_BEFORE_RESERVATIONS")
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,orderId])
+}
+model UpsellRule {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  sourceProductId String @db.Uuid
+  targetProductId String @db.Uuid
+  name String
+  sortOrder Int @default(0)
+  status String @default("ACTIVE")
+  version Int @default(1)
+  requestKey String @db.Uuid
+  requestHash String
+  createdByUserId String @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,id])
+  @@unique([organizationId,locationId,id,targetProductId])
+  @@unique([organizationId,locationId,requestKey])
+}
+
+model UpsellOffer {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  ruleId String @db.Uuid
+  ruleVersion Int
+  ruleName String
+  sourceProductId String @db.Uuid
+  targetProductId String @db.Uuid
+  createdByUserId String @db.Uuid
+  requestKey String @db.Uuid
+  requestHash String
+  shownAt DateTime @default(now()) @db.Timestamptz(3)
+  acceptedAt DateTime? @db.Timestamptz(3)
+  claimedOrderId String? @db.Uuid
+  claimedItemId String? @db.Uuid
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,id,targetProductId])
+  @@unique([organizationId,locationId,createdByUserId,requestKey])
+  @@index([organizationId,locationId,ruleId,shownAt], map: "upsell_offer_metrics")
+}
+
+model DeliveryOperation {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  orderId String @db.Uuid
+  requestKey String @db.Uuid
+  requestHash String
+  orderVersion Int
+  fromStatus String? @default(dbgenerated())
+  toStatus String
+  previousCourierId String? @default(dbgenerated()) @db.Uuid
+  courierUserId String? @db.Uuid
+  courierName String? @default(dbgenerated())
+  actorUserId String @db.Uuid
+  reason String?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,orderId,id], map: "delivery_operation_scoped_id")
+  @@unique([organizationId,locationId,requestKey])
+  @@unique([organizationId,orderId,orderVersion])
+  @@index([organizationId,orderId,createdAt], map: "delivery_operation_history")
+}
+
+model Customer {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  createdLocationId String @db.Uuid
+  createdByUserId String @db.Uuid
+  privateDataEncrypted String
+  phoneLookupHash String
+  nameLookupHash String?
+  version Int @default(1)
+  status String @default("ACTIVE")
+  updatedAt DateTime @default(dbgenerated()) @db.Timestamptz(3)
+  updatedByUserId String @default(dbgenerated()) @db.Uuid
+  updatedLocationId String @default(dbgenerated()) @db.Uuid
+  lastCommandId String? @db.Uuid
+  creationRequestKey String @db.Uuid
+  creationRequestHash String
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,phoneLookupHash])
+  @@unique([organizationId,creationRequestKey])
+}
+model CustomerCommand {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @db.Uuid
+  customerId String @db.Uuid
+  locationId String @db.Uuid
+  actorUserId String @db.Uuid
+  requestKey String @db.Uuid
+  action String
+  status String
+  requestHash String?
+  expectedVersion Int?
+  resultVersion Int?
+  resultStatus String?
+  privateDataEncrypted String?
+  phoneLookupHash String?
+  nameLookupHash String?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,requestKey])
+  @@unique([organizationId,customerId,id])
+  @@unique([organizationId,customerId,resultVersion])
+}
+
+model CustomerAddress {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  customerId String @db.Uuid
+  createdLocationId String @db.Uuid
+  createdByUserId String @db.Uuid
+  privateDataEncrypted String
+  snapshotHash String
+  status String @default("ACTIVE")
+  version Int @default(1)
+  creationRequestKey String @db.Uuid
+  creationRequestHash String
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  archivedAt DateTime? @db.Timestamptz(3)
+  archivedByUserId String? @db.Uuid
+  archivedLocationId String? @db.Uuid
+  archiveRequestKey String? @db.Uuid
+  archiveRequestHash String?
+  updatedAt DateTime @default(dbgenerated()) @db.Timestamptz(3)
+  updatedByUserId String @default(dbgenerated()) @db.Uuid
+  updatedLocationId String @default(dbgenerated()) @db.Uuid
+  lastCommandId String? @db.Uuid
+  @@unique([organizationId,id])
+  @@unique([organizationId,customerId,id])
+  @@unique([organizationId,customerId,createdLocationId,creationRequestKey], map: "customer_address_creation_identity")
+  @@unique([organizationId,archiveRequestKey])
+}
+model CustomerAddressPreference {
+  customerId String @id @db.Uuid
+  organizationId String @db.Uuid
+  defaultAddressId String? @db.Uuid
+  version Int @default(1)
+  updatedAt DateTime @db.Timestamptz(3)
+  updatedByUserId String @db.Uuid
+  updatedLocationId String @db.Uuid
+  lastCommandId String? @db.Uuid
+  @@unique([organizationId,customerId])
+}
+model CustomerAddressCommand {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @db.Uuid
+  customerId String @db.Uuid
+  addressId String @db.Uuid
+  locationId String @db.Uuid
+  actorUserId String @db.Uuid
+  requestKey String @db.Uuid
+  action String
+  status String
+  requestHash String?
+  expectedVersion Int?
+  resultVersion Int?
+  resultStatus String?
+  expectedPreferenceVersion Int?
+  resultPreferenceVersion Int?
+  resultDefaultAddressId String? @db.Uuid
+  privateDataEncrypted String?
+  snapshotHash String?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,requestKey])
+  @@unique([organizationId,customerId,id])
+  @@unique([organizationId,customerId,addressId,id])
+}
+model CustomerAddressCreationClaim {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  customerId String @db.Uuid
+  locationId String @db.Uuid
+  requestKey String @db.Uuid
+  actorUserId String @db.Uuid
+  status String
+  addressId String? @db.Uuid
+  requestHash String?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,customerId,locationId,requestKey], map: "customer_address_claim_identity")
+  @@unique([organizationId,addressId])
+}
+
+model CashRegister {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  code String
+  name String
+  status String @default("ACTIVE")
+  version Int @default(1)
+  createdByUserId String @db.Uuid
+  updatedByUserId String @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @default(now()) @db.Timestamptz(3)
+  creationRequestKey String @db.Uuid
+  lastRequestKey String @db.Uuid
+  lastRequestHash String
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,id])
+  @@unique([organizationId,locationId,code], map: "cash_register_code_unique")
+  @@unique([organizationId,locationId,creationRequestKey], map: "cash_register_creation_unique")
+}
+model CashRegisterCommand {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  requestKey String @db.Uuid
+  kind String
+  actorUserId String @db.Uuid
+  status String
+  registerId String? @db.Uuid
+  requestHash String?
+  expectedVersion Int?
+  resultCode String?
+  resultName String?
+  resultStatus String?
+  resultVersion Int?
+  resultCreatedAt DateTime? @db.Timestamptz(3)
+  resultUpdatedAt DateTime? @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,locationId,requestKey], map: "cash_register_command_identity")
+  @@unique([organizationId,registerId,resultVersion], map: "cash_register_command_result")
+}
+
+model CashRegisterGate {
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  registerId String @db.Uuid
+  revision BigInt @default(1)
+  @@id([organizationId,registerId])
+}
+model CashShift {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  registerId String @db.Uuid
+  ownerUserId String @db.Uuid
+  registerCode String
+  registerName String
+  ownerDisplayName String
+  openingAmount Decimal @db.Decimal(18,2)
+  currency String @default("MDL")
+  status String @default("OPEN")
+  version Int @default(1)
+  lastActivityId String @db.Uuid
+  openedAt DateTime @default(now()) @db.Timestamptz(3)
+  closedAt DateTime? @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,id])
+  @@index([organizationId,locationId,ownerUserId,status,openedAt,id], map: "cash_shift_owner_list")
+  @@unique([organizationId,locationId,registerId,id], map: "cash_shift_responsibility_source")
+}
+model CashOperation {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  shiftId String @db.Uuid
+  registerId String @db.Uuid
+  kind String
+  requestKey String @db.Uuid
+  requestHash String
+  actorUserId String @db.Uuid
+  expectedVersion Int?
+  cashShiftVersion Int
+  amount Decimal? @db.Decimal(18,2)
+  reason String?
+  openingAmount Decimal? @db.Decimal(18,2)
+  countedCash Decimal? @db.Decimal(18,2)
+  discrepancyReason String?
+  managerReason String?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,id])
+  @@unique([organizationId,locationId,requestKey])
+  // OPEN/CLOSE uniqueness is a partial index owned by migration055.
+}
+model CashShiftActivity {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  shiftId String @db.Uuid
+  shiftVersion Int
+  kind String
+  actorUserId String @db.Uuid
+  orderId String? @db.Uuid
+  paymentOperationId String? @db.Uuid
+  checkoutId String? @db.Uuid
+  cashOperationId String? @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,shiftId,id])
+  @@unique([organizationId,shiftId,shiftVersion])
+  @@unique([organizationId,paymentOperationId])
+  @@unique([organizationId,checkoutId])
+  @@unique([organizationId,cashOperationId])
+}
+model CashCommandClaim {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  family String
+  kind String
+  requestKey String @db.Uuid
+  actorUserId String @db.Uuid
+  orderId String? @db.Uuid
+  registerId String? @db.Uuid
+  shiftId String? @db.Uuid
+  status String
+  requestHash String?
+  paymentOperationId String? @db.Uuid
+  checkoutId String? @db.Uuid
+  cashOperationId String? @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,locationId,family,requestKey])
+  @@unique([organizationId,paymentOperationId])
+  @@unique([organizationId,checkoutId])
+  @@unique([organizationId,cashOperationId])
+}
+model CashMovement {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  shiftId String @db.Uuid
+  kind String
+  direction String
+  amount Decimal @db.Decimal(18,2)
+  currency String
+  actorUserId String @db.Uuid
+  orderId String? @db.Uuid
+  paymentId String? @db.Uuid
+  refundId String? @db.Uuid
+  cashOperationId String? @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,paymentId])
+  @@unique([organizationId,refundId])
+  @@unique([organizationId,cashOperationId])
+  @@index([organizationId,shiftId,createdAt,id], map: "cash_movement_shift")
+}
+model CashClosing {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  shiftId String @db.Uuid
+  cashOperationId String @db.Uuid
+  shiftVersion Int
+  closedByUserId String @db.Uuid
+  closedByDisplayName String
+  closedAt DateTime @db.Timestamptz(3)
+  cashIn Decimal? @db.Decimal
+  cashOut Decimal? @db.Decimal
+  expectedCash Decimal @db.Decimal
+  countedCash Decimal @db.Decimal(18,2)
+  difference Decimal @db.Decimal
+  cashCollected Decimal @db.Decimal
+  cashRefunded Decimal @db.Decimal
+  cardCollected Decimal @db.Decimal
+  cardRefunded Decimal @db.Decimal
+  cardNet Decimal @db.Decimal
+  paidOrderCount BigInt
+  refundOperationCount BigInt
+  discrepancyReason String?
+  managerReason String?
+  @@unique([organizationId,shiftId])
+  @@unique([organizationId,cashOperationId])
+}
+
+model OrderResponsibilityGate {
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  orderId String @db.Uuid
+  revision BigInt @default(1)
+  @@id([organizationId,orderId])
+}
+model OrderResponsibility {
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  orderId String @db.Uuid
+  state String
+  version Int
+  lastEventId String @db.Uuid
+  ownerUserId String? @db.Uuid
+  ownerDisplayName String?
+  shiftId String? @db.Uuid
+  registerId String? @db.Uuid
+  registerCode String?
+  registerName String?
+  pendingEventId String? @db.Uuid
+  @@id([organizationId,orderId])
+  @@index([organizationId,locationId,shiftId,state,orderId], map: "responsibility_shift_queue")
+}
+model OrderResponsibilityEvent {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  orderId String @db.Uuid
+  version Int
+  previousVersion Int
+  kind String
+  actorUserId String @db.Uuid
+  actorDisplayName String @default(dbgenerated())
+  orderVersion Int
+  orderNumber Int @default(dbgenerated())
+  orderTotal Decimal @default(dbgenerated()) @db.Decimal(18,2)
+  outstandingSnapshot Decimal @default(dbgenerated()) @db.Decimal
+  previousState String @default(dbgenerated())
+  resultState String @default(dbgenerated())
+  fromOwnerUserId String? @db.Uuid
+  fromOwnerName String?
+  toOwnerUserId String? @db.Uuid
+  toOwnerName String?
+  sourceShiftId String? @db.Uuid
+  targetShiftId String? @db.Uuid
+  registerId String? @db.Uuid
+  registerCode String?
+  registerName String?
+  handoffEventId String? @db.Uuid
+  reason String?
+  managerReason String?
+  requestKey String? @db.Uuid
+  sourceOrderEventId String? @db.Uuid
+  paymentOperationId String? @db.Uuid
+  checkoutId String? @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,locationId,orderId,id])
+  @@unique([organizationId,orderId,version])
+  @@unique([organizationId,locationId,requestKey])
+  @@unique([organizationId,sourceOrderEventId])
+  @@index([organizationId,locationId,orderId,createdAt,id], map: "responsibility_event_history")
+}
+model OrderResponsibilityCommand {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  orderId String @db.Uuid
+  requestKey String @db.Uuid
+  actorUserId String @db.Uuid
+  kind String
+  sourceShiftId String? @db.Uuid
+  targetShiftId String? @db.Uuid
+  handoffEventId String? @db.Uuid
+  status String
+  requestHash String?
+  resultEventId String? @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,locationId,requestKey])
+  @@unique([organizationId,resultEventId])
+}
+
+
+model DiningTable {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  code String
+  name String
+  capacity Int
+  sortOrder Int
+  status String @default("ACTIVE")
+  version Int @default(1)
+  createdByUserId String @db.Uuid
+  updatedByUserId String @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @default(now()) @db.Timestamptz(3)
+  creationRequestKey String @db.Uuid
+  lastRequestKey String @db.Uuid
+  lastRequestHash String
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,id])
+  @@unique([organizationId,locationId,code], map: "dining_table_code_unique")
+  @@unique([organizationId,locationId,creationRequestKey], map: "dining_table_creation_unique")
+  @@index([organizationId,locationId,status,sortOrder,code,id], map: "dining_table_listing")
+}
+
+model DiningTableCommand {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  requestKey String @db.Uuid
+  kind String
+  actorUserId String @db.Uuid
+  status String
+  tableId String? @db.Uuid
+  requestHash String?
+  expectedVersion Int?
+  resultCapacity Int?
+  resultSortOrder Int?
+  resultCode String?
+  resultName String?
+  resultStatus String?
+  resultVersion Int?
+  resultCreatedAt DateTime? @db.Timestamptz(3)
+  resultUpdatedAt DateTime? @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,locationId,requestKey], map: "dining_table_command_identity")
+  @@unique([organizationId,tableId,resultVersion], map: "dining_table_command_result")
+}
+
+model DiningTableGate {
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  tableId String @db.Uuid
+  revision BigInt @default(1)
+  @@id([organizationId,locationId,tableId])
+}
+model TableVisit {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  tableId String @db.Uuid
+  tableCode String
+  tableName String
+  status String
+  version Int
+  guestCount Int
+  waiterUserId String @db.Uuid
+  waiterDisplayName String
+  openedAt DateTime @default(now()) @db.Timestamptz(3)
+  closedAt DateTime? @db.Timestamptz(3)
+  billRequested Boolean
+  billRequestedAt DateTime? @db.Timestamptz(3)
+  billRequestEventId String? @db.Uuid
+  mergedIntoVisitId String? @db.Uuid
+  lastEventId String @db.Uuid
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,id])
+  @@unique([organizationId,locationId,tableId,id])
+}
+model TableVisitGate {
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  visitId String @db.Uuid
+  revision BigInt @default(1)
+  @@id([organizationId,locationId,visitId])
+}
+model TableVisitEvent {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  visitId String @db.Uuid
+  tableId String @db.Uuid
+  requestKey String @db.Uuid
+  requestHash String
+  kind String
+  actorUserId String @db.Uuid
+  actorDisplayName String @default("")
+  previousVersion Int
+  resultVersion Int
+  guestCount Int?
+  targetWaiterUserId String? @db.Uuid
+  targetTableId String? @db.Uuid
+  mergeId String? @db.Uuid
+  relatedVisitId String? @db.Uuid
+  reason String?
+  previousTableCode String?
+  previousTableName String?
+  previousGuestCount Int?
+  previousWaiterUserId String? @db.Uuid
+  previousWaiterDisplayName String?
+  previousBillRequested Boolean?
+  resultSnapshot Json @default("{}")
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,locationId,id])
+  @@unique([organizationId,locationId,visitId,id])
+  @@unique([organizationId,locationId,requestKey])
+  @@unique([organizationId,visitId,resultVersion])
+  @@index([organizationId,locationId,visitId,resultVersion(sort: Desc)], map: "visit_history")
+}
+model TableVisitCommand {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  requestKey String @db.Uuid
+  actorUserId String @db.Uuid
+  kind String
+  tableId String? @db.Uuid
+  visitId String? @db.Uuid
+  targetWaiterUserId String? @db.Uuid
+  targetTableId String? @db.Uuid
+  targetVisitId String? @db.Uuid
+  status String
+  requestHash String?
+  resultEventId String? @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,locationId,requestKey])
+  @@unique([organizationId,resultEventId])
+}
+
+model TableVisitMerge {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  requestKey String @db.Uuid
+  requestHash String
+  sourceVisitId String @db.Uuid
+  targetVisitId String @db.Uuid
+  sourceVersion Int
+  targetVersion Int
+  sourceEventId String @db.Uuid
+  targetEventId String @db.Uuid
+  actorUserId String @db.Uuid
+  reason String
+  sourceSnapshot Json @default("{}")
+  targetSnapshot Json @default("{}")
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,locationId,id])
+  @@unique([organizationId,locationId,requestKey])
+}
+
+model BillSplit {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  requestKey String @db.Uuid
+  requestHash String
+  actorUserId String @db.Uuid
+  scopeType String
+  targetOrderId String? @db.Uuid
+  targetVisitId String? @db.Uuid
+  mode String
+  partCount Int
+  sourceCount Int
+  total Decimal @db.Decimal(18,2)
+  currency String
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,locationId,id])
+  @@unique([organizationId,locationId,requestKey])
+}
+model BillSplitSource {
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  splitId String @db.Uuid
+  orderId String @db.Uuid
+  orderVersion Int
+  amount Decimal @db.Decimal(18,2)
+  @@id([organizationId,locationId,splitId,orderId])
+  isActive Boolean @default(true)
+}
+model BillPart {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  splitId String @db.Uuid
+  position Int
+  amount Decimal @db.Decimal(18,2)
+  @@unique([organizationId,locationId,id])
+  @@unique([organizationId,locationId,splitId,id])
+  @@unique([organizationId,splitId,position])
+}
+model BillPartAllocation {
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  splitId String @db.Uuid
+  partId String @db.Uuid
+  orderId String @db.Uuid
+  amount Decimal @db.Decimal(18,2)
+  @@id([organizationId,locationId,partId,orderId])
+}
+model BillOrderGate {
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  orderId String @db.Uuid
+  revision BigInt @default(1)
+  @@id([organizationId,locationId,orderId])
+}
+
+model BillCollection {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  partId String @db.Uuid
+  requestKey String @db.Uuid
+  actorUserId String @db.Uuid
+  status String
+  requestHash String?
+  amount Decimal? @db.Decimal(18,2)
+  method String?
+  receivedAmount Decimal? @db.Decimal(18,2)
+  cashShiftId String? @db.Uuid
+  operationCount Int?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,locationId,id])
+  @@unique([organizationId,locationId,requestKey])
+}
+
+model BillSplitVoid {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  splitId String @db.Uuid
+  requestKey String @db.Uuid
+  requestHash String
+  actorUserId String @db.Uuid
+  reason String
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,locationId,id])
+  @@unique([organizationId,locationId,splitId])
+  @@unique([organizationId,locationId,requestKey])
+}
+
+model BillPlanCommandGate {
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  kind String
+  requestKey String @db.Uuid
+  revision BigInt @default(1)
+  @@id([organizationId,locationId,kind,requestKey])
+}
+model BillPlanRetirement {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  kind String
+  requestKey String @db.Uuid
+  actorUserId String @db.Uuid
+  targetOrderId String? @db.Uuid
+  targetVisitId String? @db.Uuid
+  targetSplitId String? @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,locationId,kind,requestKey])
+}
+
+model BillSplitItem {
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  splitId String @db.Uuid
+  orderId String @db.Uuid
+  orderItemId String @db.Uuid
+  quantity Decimal @db.Decimal(18,3)
+  amount Decimal @db.Decimal(18,2)
+  @@id([organizationId,locationId,splitId,orderItemId])
+  @@unique([organizationId,locationId,splitId,orderId,orderItemId])
+}
+model BillPartItem {
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  splitId String @db.Uuid
+  partId String @db.Uuid
+  orderId String @db.Uuid
+  orderItemId String @db.Uuid
+  quantity Decimal @db.Decimal(18,3)
+  amount Decimal @db.Decimal(18,2)
+  @@id([organizationId,locationId,partId,orderItemId])
+}
+
+model KitchenStation {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  code String
+  name String
+  sortOrder Int
+  status String @default("ACTIVE")
+  version Int @default(1)
+  createdByUserId String @db.Uuid
+  updatedByUserId String @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @default(now()) @db.Timestamptz(3)
+  creationRequestKey String @db.Uuid
+  lastRequestKey String @db.Uuid
+  lastRequestHash String
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,id])
+  @@unique([organizationId,locationId,code], map: "kitchen_station_code_unique")
+  @@unique([organizationId,locationId,creationRequestKey], map: "kitchen_station_creation_unique")
+  @@index([organizationId,locationId,status,sortOrder,code,id], map: "kitchen_station_listing")
+}
+
+model KitchenStationCommand {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  requestKey String @db.Uuid
+  kind String
+  actorUserId String @db.Uuid
+  status String
+  stationId String? @db.Uuid
+  requestHash String?
+  expectedVersion Int?
+  resultSortOrder Int?
+  resultCode String?
+  resultName String?
+  resultStatus String?
+  resultVersion Int?
+  resultCreatedAt DateTime? @db.Timestamptz(3)
+  resultUpdatedAt DateTime? @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,locationId,requestKey], map: "kitchen_station_command_identity")
+  @@unique([organizationId,stationId,resultVersion], map: "kitchen_station_command_result")
+}
+
+
+model KitchenTicketBatch {
+  id String @id @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  ticketId String @db.Uuid
+  stationId String? @db.Uuid
+  stationCode String?
+  stationName String?
+  courseNumber Int @default(0)
+  firedAt DateTime? @db.Timestamptz(3)
+  fireCommandId String? @db.Uuid
+  status String @default("QUEUED")
+  version Int @default(1)
+  updatedByUserId String @db.Uuid
+  updatedAt DateTime @default(now()) @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,locationId,id])
+  @@unique([organizationId,locationId,ticketId,id])
+  @@unique([organizationId,locationId,ticketId,stationId,courseNumber], map: "kitchen_station_course_unique")
+}
+model KitchenRoutingCommand {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  productId String @db.Uuid
+  requestKey String @db.Uuid
+  actorUserId String @db.Uuid
+  status String
+  requestHash String?
+  expectedVersion Int?
+  resultVersion Int?
+  stationId String? @db.Uuid
+  stationCode String?
+  stationName String?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,locationId,id])
+  @@unique([organizationId,locationId,requestKey])
+  @@unique([organizationId,locationId,productId,resultVersion])
+}
+
+model KitchenTicketBatchItem {
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  ticketId String @db.Uuid
+  batchId String @db.Uuid
+  ticketItemId String @db.Uuid
+  routingCommandId String? @db.Uuid
+  @@id([organizationId,locationId,ticketItemId])
+}
+
+model KitchenAlertCommand {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  scopeType String
+  locationId String? @db.Uuid
+  targetKind String
+  stationId String? @db.Uuid
+  categoryId String? @db.Uuid
+  productId String? @db.Uuid
+  requestKey String @db.Uuid
+  actorUserId String @db.Uuid
+  status String
+  requestHash String?
+  expectedVersion Int?
+  resultVersion Int?
+  warningSeconds Int?
+  criticalSeconds Int?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,requestKey])
+}
+
+model KitchenCourseCommand {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  ticketId String @db.Uuid
+  actorUserId String @db.Uuid
+  requestKey String @db.Uuid
+  status String
+  course String?
+  requestHash String?
+  expectedVersion Int?
+  resultVersion Int?
+  batchIds String[] @default([]) @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,requestKey])
+  @@unique([organizationId,locationId,ticketId,id])
+  @@unique([organizationId,locationId,ticketId,resultVersion])
+}
+
+model CourierActivityGuard {
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  userId String @db.Uuid
+  revision BigInt @default(0)
+  @@id([organizationId,locationId,userId])
+}
+
+model CourierAcceptanceCommand {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  orderId String @db.Uuid
+  assignmentId String @db.Uuid
+  courierId String @db.Uuid
+  actorUserId String @db.Uuid
+  requestKey String @db.Uuid
+  status String
+  requestHash String?
+  expectedOrderVersion Int?
+  acceptedAt DateTime? @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,requestKey])
+  @@index([organizationId,locationId,orderId], map: "courier_acceptance_order")
+}
+
+model DeliveryRequestGate {
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  requestKey String @db.Uuid
+  revision BigInt @default(1)
+  @@id([organizationId,locationId,requestKey])
+}
+
+model DeliveryRequestRetirement {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  orderId String @db.Uuid
+  actorUserId String @db.Uuid
+  requestKey String @db.Uuid
+  toStatus String
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,requestKey])
+}
+model Courier {
+  id String @id @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  userId String @db.Uuid
+  profile Json
+  status String
+  availability String
+  version Int
+  createdByUserId String @db.Uuid
+  updatedByUserId String @db.Uuid
+  createdAt DateTime @db.Timestamptz(3)
+  updatedAt DateTime @db.Timestamptz(3)
+  lastCommandId String @db.Uuid
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,id])
+  @@unique([organizationId,locationId,userId])
+  @@index([organizationId,locationId,status,id], map: "courier_location_page")
+}
+model CourierCommand {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  courierId String @db.Uuid
+  actorUserId String @db.Uuid
+  requestKey String @db.Uuid
+  action String
+  status String
+  requestHash String?
+  expectedVersion Int?
+  resultVersion Int? @default(dbgenerated())
+  resultStatus String? @default(dbgenerated())
+  userId String? @db.Uuid
+  availability String?
+  profile Json?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,requestKey])
+  @@unique([organizationId,locationId,courierId,id])
+}
+
+model DeliveryPricingGuard {
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  revision BigInt @default(0)
+
+  @@id([organizationId, locationId])
+}
+
+model DeliveryZone {
+  id String @id @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  profile Json
+  status String
+  version Int
+  createdByUserId String @db.Uuid
+  updatedByUserId String @db.Uuid
+  createdAt DateTime @db.Timestamptz(3)
+  updatedAt DateTime @db.Timestamptz(3)
+  lastCommandId String @db.Uuid
+  @@unique([organizationId,id])
+  @@unique([organizationId,locationId,id])
+  @@index([organizationId,locationId,status,id], map: "delivery_zone_location_page")
+}
+model DeliveryZoneCommand {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  zoneId String @db.Uuid
+  actorUserId String @db.Uuid
+  requestKey String @db.Uuid
+  action String
+  status String
+  requestHash String?
+  expectedVersion Int?
+  resultVersion Int? @default(dbgenerated())
+  resultStatus String? @default(dbgenerated())
+  resultZoneId String? @default(dbgenerated()) @db.Uuid
+  profile Json?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,requestKey])
+  @@unique([organizationId,locationId,zoneId,id])
+}
+
+model OrderDeliveryFeeCommand {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  orderId String @db.Uuid
+  actorUserId String @db.Uuid
+  requestKey String @db.Uuid
+  status String
+  requestHash String?
+  expectedVersion Int?
+  resultVersion Int? @default(dbgenerated())
+  zoneId String? @db.Uuid
+  zoneVersion Int?
+  zoneCommandId String? @default(dbgenerated()) @db.Uuid
+  destination Json?
+  subtotal Decimal? @db.Decimal(18,2)
+  fee Decimal? @db.Decimal(18,2)
+  total Decimal? @db.Decimal(18,2)
+  deliveryAddressHash String? @default(dbgenerated())
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,requestKey])
+  @@unique([organizationId,locationId,orderId,id])
+}
+
+model DeliveryProof {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  locationId String @db.Uuid
+  orderId String @db.Uuid
+  operationId String @db.Uuid
+  assignmentId String @db.Uuid
+  actorUserId String @db.Uuid
+  privateDataEncrypted String
+  confirmedAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([organizationId,id])
+  @@unique([organizationId,operationId])
+  @@index([organizationId,locationId,orderId], map: "delivery_proof_order")
+}

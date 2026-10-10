@@ -1,0 +1,68 @@
+.mobile-menu {
+  display: none;
+}
+.mobile-nav-backdrop {
+  display: none;
+}
+.section-subtitle {
+  font-size: 13px;
+  margin: 8px 0 10px;
+}
+.row-detail {
+  font-size: 11px;
+  color: #8c97a3;
+  overflow-wrap: anywhere;
+}
+.audit-action {
+  font-family: monospace;
+  font-size: 11px;
+}
+.status-banner {
+  background: #fff7dd;
+  color: #8b6f2d;
+  padding: 10px 25px;
+  font-size: 12px;
+  text-align: center;
+}
+.platform-shell .sidebar {
+  background: #f9fbfa;
+}
+.platform-shell .topbar-private {
+  color: var(--accent);
+}
+@media (min-width: 1800px) {
+  .main-content {
+    padding-top: 45px;
+  }
+}
+@media (max-width: 1100px) {
+  .app-shell {
+    grid-template-columns: 205px minmax(0, 1fr);
+  }
+  .sidebar {
+    padding: 25px 12px;
+  }
+  .main-content {
+    padding: 28px 24px;
+  }
+  .topbar {
+    padding: 0 24px;
+  }
+  .overview-grid {
+    grid-template-columns: 1fr;
+  }
+  .auth-panel {
+    padding: 40px 9%;
+  }
+  .data-table th,
+  .data-table td {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  .page-heading {
+    flex-wrap: wrap;
+  }
+  .role-cards {
+    grid-template-columns: 1fr;
+  }
+}

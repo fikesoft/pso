@@ -1,0 +1,16 @@
+@import 'tailwindcss';
+@import './shared/styles/base.css';
+@import './shared/styles/primitives.css';
+@import './shared/styles/dialog-brand.css';
+@import './shared/styles/authentication.css';
+@import './shared/styles/shell.css';
+@import './shared/styles/workspace.css';
+@import './shared/styles/access.css';
+@import './shared/styles/tablet.css';
+@import './shared/styles/mobile.css';
+@import './shared/styles/accessibility.css';
+@import './shared/styles/attendance.css';
+@import './shared/styles/media.css';
+@source "../../../apps/web";
+@source "../../../apps/platform-web";
+@source "./";

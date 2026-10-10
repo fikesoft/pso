@@ -1,0 +1,53 @@
+/** Initial locale. Shared vocabulary is kept separate from component identifiers. */
+export const ro = {
+  actions: {
+    close: 'Închide',
+    login: 'Autentificare',
+    logout: 'Deconectare',
+    cancel: 'Anulează',
+    save: 'Salvează modificările',
+    preview: 'Previzualizează accesul',
+  },
+  states: {
+    loading: 'Se încarcă datele…',
+    active: 'Activ',
+    disabled: 'Dezactivat',
+    pending: 'Activare necesară',
+    revoked: 'Revocat',
+  },
+  auth: {
+    login: 'Login',
+    password: 'Parolă',
+    welcome: 'Bine ai revenit',
+    personalPassword: 'Alege o parolă personală',
+    secureAccount: 'Protejează-ți contul',
+    verifyLogin: 'Confirmă autentificarea',
+    code: 'Cod de autentificare',
+    verify: 'Verifică și continuă',
+    enroll: 'Configurează autentificarea în doi pași',
+    changePassword: 'Schimbă parola și continuă',
+  },
+  navigation: {
+    overview: 'Privire de ansamblu',
+    locations: 'Locații',
+    staff: 'Echipă',
+    roles: 'Roluri și permisiuni',
+    delegations: 'Delegare',
+    access: 'Accesul meu',
+    audit: 'Jurnal de audit',
+  },
+  access: {
+    use: 'Poate folosi',
+    grant: 'Poate acorda',
+    organization: 'Întreaga companie',
+    location: 'O locație',
+    primary: 'Administrator principal',
+  },
+  errors: {
+    connection: 'Nu putem contacta serverul local. Verificați conexiunea și încercați din nou.',
+    forbidden: 'Nu aveți permisiunea necesară în acest context.',
+    stale: 'Datele s-au schimbat. Reîncărcați pagina înainte de salvare.',
+    request: 'Cererea nu a putut fi finalizată.',
+    unknown: 'A apărut o eroare. Încercați din nou.',
+  },
+} as const;
