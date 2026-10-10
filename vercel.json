@@ -29,8 +29,8 @@
   },
   "rewrites": [
     { "source": "/api/internal/jobs", "destination": { "service": "worker" } },
-    { "source": "/api/:path*", "destination": { "service": "api" } },
-    { "source": "/:path*", "destination": { "service": "web" } }
+    { "source": "/api/(.*)", "destination": { "service": "api" } },
+    { "source": "/(.*)", "destination": { "service": "web" } }
   ],
   "crons": [{ "path": "/api/internal/jobs", "schedule": "0 2 * * *" }]
 }
