@@ -15,4 +15,6 @@ export interface DatabaseRolePrivileges {
 
 export interface TenantTransactionOptions {
   readOnlySnapshot?: boolean;
+  /** Explicit budget for private provisioning jobs; API requests use the default. */
+  timeoutMillis?: number;
 }

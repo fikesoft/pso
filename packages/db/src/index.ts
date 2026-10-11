@@ -58,7 +58,7 @@ export async function withTenantTransaction<T>(
         ? { isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead }
         : {}),
       maxWait: DATABASE_OPTIONS.transactionMaxWaitMillis,
-      timeout: DATABASE_OPTIONS.transactionTimeoutMillis,
+      timeout: options.timeoutMillis ?? DATABASE_OPTIONS.transactionTimeoutMillis,
     },
   );
 }

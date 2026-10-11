@@ -1,5 +1,5 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
-import { SHOWCASE } from '../config/seed.constants';
+import { SHOWCASE, ORDER_SCENARIOS } from '../config/seed.constants';
 import { STAFF_PROFILES } from '../config/staff.constants';
 import type { SeedRecord, SeedTarget } from './seed.types';
 
@@ -9,6 +9,11 @@ export function seedKey(record: Pick<SeedRecord, 'id'>, label: string) {
   bytes[8] = (bytes[8]! & 63) | 0x80;
   const hex = bytes.toString('hex');
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
+export function seedOrderKeys(record: Pick<SeedRecord, 'id'>, locationIndex: number) {
+  return Array.from({ length: SHOWCASE.cycles * ORDER_SCENARIOS.length }, (_, order) =>
+    seedKey(record, `order:${locationIndex}:${order}`),
+  );
 }
 export function createSeedRecord(target: SeedTarget): SeedRecord {
   return {

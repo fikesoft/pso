@@ -2,6 +2,7 @@ export const SHOWCASE = {
   version: 1,
   platformLogin: 'showcase-owner',
   passwordHours: 168,
+  baseTimeoutMillis: 120_000,
   cycles: 4,
   customersPerLocation: 12,
   companies: [

@@ -207,6 +207,14 @@ it('verifies a finished seed without resetting credentials or operator changes, 
   });
   await verifyShowcaseSeed(clients(), record);
   await provisionCompanies(clients(), record);
+  const login = vi
+    .spyOn(SeedHttpClient.prototype, 'login')
+    .mockRejectedValue(new Error('Finished locations must not open new sessions'));
+  try {
+    await runShowcaseSeed(clients(), record, bases.TENANT);
+  } finally {
+    login.mockRestore();
+  }
   await db.withTenantTransaction(db.runtime, context, async (tx) => {
     const admin = await tx.companyUser.findUniqueOrThrow({ where: { id: context.userId } });
     expect(await verifyPassword(admin.passwordHash, record.companies[0]!.admin.password)).toBe(

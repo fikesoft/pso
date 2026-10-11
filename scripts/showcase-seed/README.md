@@ -28,6 +28,8 @@ Manifestul `.json.pending` este scris înaintea modificărilor DB și redenumit 
 
 Un lock `.local/showcase-production.lock` sau `.local/showcase-local.lock` împiedică două execuții simultane. Îndepărtați numai lockul unui proces întrerupt, după verificarea că procesul nu mai rulează. Identitățile incompatibile sau țintele schimbate sunt refuzate; nu ștergeți manifestul, datele sau volumele pentru a forța reluarea.
 
+Încărcarea inițială a catalogului și lucrătorilor are un buget privat de două minute pentru latența Neon. Cele trei locații sunt procesate în paralel, fiecare cu propriile case, stocuri și conturi operaționale. La recuperare, locațiile cu toate comenzile confirmate sunt omise, fără sesiuni noi. Procesul așteaptă închiderea tuturor locațiilor înainte de a închide API-ul privat.
+
 ## Verificare
 
 ```sh

@@ -1,7 +1,7 @@
 import { withTenantTransaction } from '../../../packages/db/src/index';
-import { SHOWCASE, ORDER_SCENARIOS } from '../config/seed.constants';
+import { SHOWCASE } from '../config/seed.constants';
 import { SHOWCASE_MENU } from '../config/menu.constants';
-import { seedKey } from './record';
+import { seedOrderKeys } from './record';
 import { assertIdentity, readIdentity } from './provision';
 import type { SeedClients, SeedRecord } from './seed.types';
 
@@ -43,11 +43,7 @@ export async function verifyShowcaseSeed(clients: SeedClients, record: SeedRecor
           SHOWCASE_MENU.length
         )
           throw new Error('Un produs din seed lipsește. Nu îl recreez.');
-        const keys = SHOWCASE.locations.flatMap((_, location) =>
-          Array.from({ length: SHOWCASE.cycles * ORDER_SCENARIOS.length }, (_, order) =>
-            seedKey(record, `order:${location}:${order}`),
-          ),
-        );
+        const keys = SHOWCASE.locations.flatMap((_, location) => seedOrderKeys(record, location));
         if (
           (await tx.order.count({ where: { clientRequestId: { in: keys } } })) !== keys.length ||
           (await tx.auditEvent.count({
